@@ -1,0 +1,18 @@
+Preconditions: The SpotzSDK has already been imported
+
+
+Because we are mixing swift code with objective-c code we need a header file to act as a bridge between the two and import the needed objective-c header files.
+
+In objective-c we would use #import "myfile.h", but in swift imports are done automatically.
+
+To create the bridge file:
+1. Create a new header file by going file>new>file>(select header).
+2. Name the header file "myProjectName-Bridging-Header.h".
+3. Look in the project build settings for "Objective-C Bridging Header" and add the location of your header file.
+    This will usually be "myProjectName/myProjectName-Bridging-Header.h".
+4. Return to the header file and finally import your objective-c headers (in objective-c),
+    e.g. #import <SpotzSDK/SpotzSDK.h>.
+5. These will now be accessable from your swift files.
+
+
+Apple doc at https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/BuildingCocoaApps/MixandMatch.htmls
