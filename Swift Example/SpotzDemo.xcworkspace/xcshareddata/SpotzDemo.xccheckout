@@ -6,24 +6,40 @@
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>DDFB99BC-DA46-4E2E-9110-38F977D8D30D</string>
+	<key>IDESourceControlProjectName</key>
+	<string>SpotzDemo</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>0E740DD126E9F141BA6555A34042CAE8B823B1B8</key>
+		<string>github.com:localz/Spotz-iOS-Examples.git</string>
 		<key>D3AFEA52A81EAD42C3037F0D51C8C1E4D6BAB9F6</key>
 		<string>/Users/Daniel/Library/Caches/CocoaPods/GitHub/011887ac1bc6093524059d68d99d07f654c2f49d</string>
 	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Swift Example/SpotzDemo.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>0E740DD126E9F141BA6555A34042CAE8B823B1B8</key>
+		<string>../..</string>
 		<key>D3AFEA52A81EAD42C3037F0D51C8C1E4D6BAB9F6</key>
-		<string>SpotzSDK</string>
+		<string>../../../SpotzSDK</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>/Users/Daniel/Library/Caches/CocoaPods/GitHub/011887ac1bc6093524059d68d99d07f654c2f49d</string>
+	<string>github.com:localz/Spotz-iOS-Examples.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>D3AFEA52A81EAD42C3037F0D51C8C1E4D6BAB9F6</string>
+	<string>0E740DD126E9F141BA6555A34042CAE8B823B1B8</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>0E740DD126E9F141BA6555A34042CAE8B823B1B8</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Spotz-iOS-Examples</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>

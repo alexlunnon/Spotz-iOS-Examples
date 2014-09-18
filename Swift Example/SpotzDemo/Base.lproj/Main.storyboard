@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6206.9" systemVersion="14A361c" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
-        <deployment defaultVersion="1792" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7026.1"/>
+        <capability name="Constraints with attributes relative to the layout margin" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -17,9 +17,26 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Urg-bg-Fnh">
-                                <rect key="frame" x="234" y="540" width="120" height="40"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Find a spotz yo!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="bll-ad-52k">
+                                <rect key="frame" x="126" y="60" width="349" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="349" id="c7I-0H-HyJ"/>
+                                    <constraint firstAttribute="height" constant="68" id="l1b-uT-7Ye"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="24"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                                <variation key="heightClass=regular-widthClass=compact" fixedFrame="YES">
+                                    <rect key="frame" x="128" y="40" width="149" height="68"/>
+                                </variation>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Urg-bg-Fnh">
+                                <rect key="frame" x="240" y="500" width="120" height="40"/>
                                 <color key="backgroundColor" red="1" green="0.65482344770833933" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="dO4-aO-blT"/>
+                                    <constraint firstAttribute="width" constant="120" id="ezv-RN-Lk7"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="18"/>
                                 <state key="normal" title="Refresh">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -32,27 +49,32 @@
                                     <action selector="refreshSpotz" destination="vXZ-lx-hvc" eventType="touchUpInside" id="YOU-V1-4Xr"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Beacon name" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bll-ad-52k">
-                                <rect key="frame" x="150" y="71" width="300" height="68"/>
-                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="24"/>
-                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                                <variation key="heightClass=regular-widthClass=compact" fixedFrame="YES">
-                                    <rect key="frame" x="128" y="40" width="149" height="68"/>
-                                </variation>
-                            </label>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1R7-RP-d6k">
+                                <rect key="frame" x="20" y="158" width="560" height="281"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </tableView>
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="centerX" secondItem="bll-ad-52k" secondAttribute="centerX" id="MCG-Jf-Nvd"/>
-                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="Urg-bg-Fnh" secondAttribute="bottom" constant="20" id="p08-IQ-TXh"/>
-                            <constraint firstAttribute="centerX" secondItem="Urg-bg-Fnh" secondAttribute="centerX" id="tCo-eU-1Jc"/>
+                            <constraint firstItem="1R7-RP-d6k" firstAttribute="top" secondItem="bll-ad-52k" secondAttribute="bottom" constant="30" id="1SO-2R-myg"/>
+                            <constraint firstItem="Urg-bg-Fnh" firstAttribute="top" relation="lessThanOrEqual" secondItem="1R7-RP-d6k" secondAttribute="bottom" constant="61" id="9E0-Tm-AGU"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" relation="lessThanOrEqual" secondItem="Urg-bg-Fnh" secondAttribute="bottom" priority="100" constant="60" id="Cal-8i-PbX"/>
+                            <constraint firstAttribute="centerX" secondItem="bll-ad-52k" secondAttribute="centerX" id="Gqd-zj-Lyo"/>
+                            <constraint firstAttribute="centerX" secondItem="1R7-RP-d6k" secondAttribute="centerX" id="IbV-xD-Reu"/>
+                            <constraint firstItem="bll-ad-52k" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="40" id="Jzr-cZ-opq"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="1R7-RP-d6k" secondAttribute="trailing" constant="4" id="Kz2-C4-cme"/>
+                            <constraint firstItem="Urg-bg-Fnh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="1R7-RP-d6k" secondAttribute="bottom" constant="10" id="L0b-Sc-TPd"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Urg-bg-Fnh" secondAttribute="bottom" priority="100" constant="10" id="SLO-Xo-RXS"/>
+                            <constraint firstItem="1R7-RP-d6k" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="4" id="SlL-Od-XEs"/>
+                            <constraint firstAttribute="centerY" secondItem="1R7-RP-d6k" secondAttribute="centerY" constant="1.5" id="Tox-Kz-daq"/>
+                            <constraint firstAttribute="centerX" secondItem="Urg-bg-Fnh" secondAttribute="centerX" id="X4K-dT-8wd"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="Urg-bg-Fnh" secondAttribute="bottom" constant="60" id="Ypy-Lt-8b2"/>
                         </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="388" y="496"/>
+            <point key="canvasLocation" x="209" y="487"/>
         </scene>
     </scenes>
 </document>
