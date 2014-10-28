@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var lbStatus: UILabel!
     @IBOutlet weak var lbSpotzName: UILabel!
+    @IBOutlet weak var lbBeaconDetails: UILabel!
     @IBOutlet weak var tableView: UITableView!
     var spotzData: NSDictionary?
 
@@ -19,6 +20,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         // Do any additional setup after loading the view, typically from a nib.
         
         self.showSpotzDetails(nil)
+        self.showBeaconDetails(nil)
         
         // set up to recieve notifications from a spot
         NSNotificationCenter.defaultCenter().addObserverForName(SpotzInsideNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
@@ -35,10 +37,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 NSLog("Spotz id: %@ name: %@",spotz.id!,spotz.name!);
                 
                 self.showSpotzDetails(spotz)
+                self.showBeaconDetails(beacon)
             }
             else
             {
                 self.showSpotzDetails(nil)
+                self.showBeaconDetails(nil)
             }
             
             self.tableView.reloadData()
@@ -47,6 +51,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
             self.lbStatus.text = "Find me spotz yo!"
             self.showSpotzDetails(nil)
+            self.showBeaconDetails(nil)
             if note.object != nil
             {
                 var data: NSDictionary! = note.object as NSDictionary
@@ -55,6 +60,24 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 
                 NSLog("Exit beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid!,beacon.major,beacon.minor);
                 NSLog("Spotz id: %@ name: %@",spotz.id!,spotz.name!);
+            }
+        }
+        NSNotificationCenter.defaultCenter().addObserverForName(SpotzRangingNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
+            if note.object != nil {
+                var data: NSDictionary! = note.object as NSDictionary
+                
+                var spotz = data["spotz"] as Spotz!
+                var acc = data["accuracy"] as NSNumber!
+                
+                NSLog("Show spotz ranging details")
+                self.showSpotzDetails(spotz)
+                
+                self.lbBeaconDetails.hidden = false
+                self.lbBeaconDetails.text = String(format: "Accuracy: %fm", acc.floatValue)
+            }
+            else
+            {
+                self.lbBeaconDetails.hidden = true
             }
         }
     }
@@ -77,6 +100,19 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             self.lbSpotzName.hidden = true
             self.tableView.hidden = true
             self.spotzData = [:]
+        }
+    }
+    
+    func showBeaconDetails(beacon:SpotzBeacon!) {
+        
+        if beacon != nil
+        {
+            self.lbBeaconDetails.hidden = false
+            self.lbBeaconDetails.text = String(format:"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid)
+        }
+        else
+        {
+            self.lbBeaconDetails.hidden = true
         }
     }
     

@@ -17,7 +17,7 @@
     // Override point for customization after application launch.
     [SpotzSDK reset];
     
-    [SpotzSDK initializeWithAppId:@"<Insert Application ID here>" clientKey:@"<Insert iOS Client ID here>" delegate:self withOptions:nil];
+    [SpotzSDK initializeWithAppId:@"O6elmRmOGOpsgeZLljj51RpzNYhM9nTJxqPhSgIN" clientKey:@"FfpqLqpDtJMZasH9JH7B2W3sYaFskkXqlbbnjO2z" delegate:self withOptions:nil];
 
     return YES;
 }

@@ -12,6 +12,7 @@
 @interface LocalzViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic,weak) IBOutlet UILabel *lbStatus;
 @property (weak, nonatomic) IBOutlet UILabel *lbSpotzName;
+@property (weak, nonatomic) IBOutlet UILabel *lbBeaconDetails;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic,strong) NSDictionary *spotzData;
 
@@ -25,6 +26,7 @@
     
     // Do any additional setup after loading the view, typically from a nib.
     [self showSpotzDetails:nil];
+    [self showBeaconDetails:nil];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzInsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         self.lbStatus.text = @"Spotz rocks!";
@@ -42,19 +44,22 @@
             NSLog(@"Spotz id: %@ name: %@",spotz.id,spotz.name);
             
             [self showSpotzDetails:spotz];
+            [self showBeaconDetails:beacon];
         }
         else
+        {
             [self showSpotzDetails:nil];
-        
+            [self showBeaconDetails:nil];
+        }
         
         [self.tableView reloadData];
         
     }];
-    
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzOutsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         
         self.lbStatus.text = @"Find me spotz yo!";
         [self showSpotzDetails:nil];
+        [self showBeaconDetails:nil];
         if(note.object)
         {
             //Spotz *spotz = note.object;
@@ -66,6 +71,26 @@
             NSLog(@"Exit beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
             NSLog(@"Spotz id: %@ name: %@",spotz.id,spotz.name);
         }
+    }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:SpotzRangingNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        if (note.object)
+        {
+            NSDictionary *data = note.object;
+            
+            Spotz *spotz = data[@"spotz"];
+            NSNumber *acc = data[@"accuracy"];
+            
+            NSLog(@"Show spotz ranging details");
+            [self showSpotzDetails:spotz];
+            
+            self.lbBeaconDetails.hidden = false;
+            self.lbBeaconDetails.text = [NSString stringWithFormat:@"Accuracy: %fm", acc.floatValue];
+        }
+        else
+        {
+            self.lbBeaconDetails.hidden = true;
+        }
+        
     }];
 }
 
@@ -87,6 +112,19 @@
         self.lbSpotzName.hidden = YES;
         self.tableView.hidden = YES;
         self.spotzData = @{};
+    }
+}
+
+- (void) showBeaconDetails:(SpotzBeacon *)beacon
+{
+    if (beacon)
+    {
+        self.lbBeaconDetails.hidden = false;
+        self.lbBeaconDetails.text = [NSString stringWithFormat:@"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid];
+    }
+    else
+    {
+        self.lbBeaconDetails.hidden = true;
     }
 }
 
