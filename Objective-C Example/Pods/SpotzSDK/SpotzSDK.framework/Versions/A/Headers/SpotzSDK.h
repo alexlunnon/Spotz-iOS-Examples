@@ -11,8 +11,9 @@
 #import "SpotzBeacon.h"
 
 typedef enum {
-    SpotzOptionCustomLocationPermissionPrompt = 1
-} SpotzOption;
+    SpotzOptionCustomLocationPermissionPrompt = 1 << 0,
+    SpotzOptionDoNotTrack = 1 << 1
+} SpotzOptions;
 
 typedef enum {
     SpotzLocationServiceStateNotEnabled = 1,
@@ -32,6 +33,11 @@ extern NSString * const SpotzInsideNotification;
  */
 extern NSString * const SpotzOutsideNotification;
 
+/**
+ *  Notification when ranging information available
+ */
+extern NSString * const SpotzRangingNotification;
+
 @protocol SpotzSDKDelegate <NSObject>
 @optional
 - (void) spotzSDKInitSuccessfull;
@@ -50,7 +56,7 @@ extern NSString * const SpotzOutsideNotification;
  *  @param delegate delegate
  *  @param options dictionary of Spotz's options
  */
-+ (void) initializeWithAppId:(NSString *)appId clientKey:(NSString *)clientKey delegate:(id)delegate withOptions:(NSDictionary *)options;
++ (void) initializeWithAppId:(NSString *)appId clientKey:(NSString *)clientKey delegate:(id)delegate withOptions:(id)options;
 
 /**
  *  Register push notification device token for Push Notification
@@ -83,12 +89,25 @@ extern NSString * const SpotzOutsideNotification;
 + (SpotzLocationServiceState) checkLocationServices;
 
 /**
+ *  Returns all spotz for the application
+ *
+ *  @return All spotz
+ */
++ (NSArray *) allSpotz;
+
+/**
  *  Start location service once permission has been obtained
  *  If this is the first time it is run, iOS will prompt user to enable the location service
  *  If location service has been denied previously, this method will do nothing.
  *  Please run [SpotzSDK checkLocationServices] to check the state of location service.
  */
 + (void) startServices;
+
+/**
+ * Start ranging service for beacons that are marked for ranging
+ * When beacon is found and matched the range specified in the
+ */
+//+ (void) startRangingSpotzId:(NSString *)spotzId;
 
 @property (nonatomic,assign) id<SpotzSDKDelegate> delegate;
 

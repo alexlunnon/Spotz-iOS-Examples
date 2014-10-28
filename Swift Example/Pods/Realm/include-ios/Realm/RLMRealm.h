@@ -161,8 +161,9 @@ typedef void(^RLMNotificationBlock)(NSString *notification, RLMRealm *realm);
 
  It receives the following parameters:
 
- - `NSString` \***notification**:    The name of the incoming notification.
-    `RLMRealmDidChangeNotification` is the only notification currently supported.
+ - `NSString` \***notification**:    The name of the incoming notification. See
+                                     RLMRealmNotification for information on what
+                                     notifications are sent.
  - `RLMRealm` \***realm**:           The realm for which this notification occurred
 
  @param block   A block which is called to process RLMRealm notifications.
@@ -225,8 +226,10 @@ typedef void(^RLMNotificationBlock)(NSString *notification, RLMRealm *realm);
 
 /**
  Update an `RLMRealm` and outstanding objects to point to the most recent data for this `RLMRealm`.
+
+ @return    Whether the realm had any updates. Note that this may return YES even if no data has actually changed.
  */
-- (void)refresh;
+- (BOOL)refresh;
 
 /**
  Set to YES to automatically update this Realm when changes happen in other threads.
@@ -267,8 +270,10 @@ typedef void(^RLMNotificationBlock)(NSString *notification, RLMRealm *realm);
  Once added, this object can be retrieved using the `objectsWhere:` selectors
  on `RLMRealm` and on subclasses of `RLMObject`. When added, all linked (child)
  objects referenced by this object will also be added to the Realm if they are
- not already in it. If linked objects already belong to a different Realm an
- exception will be thrown.
+ not already in it. If the object or any linked objects already belong to a
+ different Realm an exception will be thrown. Use
+ `-[RLMObject createInRealm:withObject]` to insert a copy of a persisted object
+ into a different Realm.
 
  The object to be added cannot have been previously deleted from a Realm (i.e.
  `isDeletedFromRealm`) must be false.
@@ -287,6 +292,30 @@ typedef void(^RLMNotificationBlock)(NSString *notification, RLMRealm *realm);
  @see   addObject:
  */
 - (void)addObjectsFromArray:(id)array;
+
+/**
+ Adds or updates an object to be persisted it in this Realm. The object provided must have a designated
+ primary key. If no objects exist in the RLMRealm instance with the same primary key value, the object is
+ inserted. Otherwise, the existing object is updated with any changed values.
+
+ As with `addObject:`, the object cannot already be persisted in a different
+ Realm. Use `-[RLMObject createOrUpdateInRealm:withObject:]` to copy values to
+ a different Realm.
+
+ @param object  Object to be added or updated.
+ */
+- (void)addOrUpdateObject:(RLMObject *)object;
+
+/**
+ Adds or updates objects in the given array to be persisted it in this Realm.
+
+ This is the equivalent of `addOrUpdateObject:` except for an array of objects.
+
+ @param array  `NSArray` or `RLMArray` of `RLMObject`s (or subclasses) to be added to this Realm.
+
+ @see   addOrUpdateObject:
+ */
+- (void)addOrUpdateObjectsFromArray:(id)array;
 
 /**
  Delete an object from this Realm.

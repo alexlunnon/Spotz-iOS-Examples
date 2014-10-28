@@ -12,5 +12,6 @@
 @property (nonatomic,strong)  NSString *id;
 @property (nonatomic,strong)  NSString *name;
 @property (nonatomic,strong)  NSString *tag;
-@property (nonatomic,strong) NSArray *data;
+@property (nonatomic,strong) NSDictionary *data;
+
 @end

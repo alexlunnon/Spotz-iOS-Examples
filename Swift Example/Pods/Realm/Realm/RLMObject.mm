@@ -19,21 +19,14 @@
 #import "RLMObject_Private.h"
 #import "RLMSchema_Private.h"
 #import "RLMObjectSchema_Private.hpp"
-#import "RLMObjectStore.h"
+#import "RLMObjectStore.hpp"
 #import "RLMQueryUtil.hpp"
 #import "RLMUtil.hpp"
-
-#if REALM_SWIFT
-#import <Realm/Realm-Swift.h>
-#endif
+#import "RLMSwiftSupport.h"
 
 #import <objc/runtime.h>
 
 @implementation RLMObject
-
-@synthesize realm = _realm;
-@synthesize objectSchema = _objectSchema;
-
 
 // standalone init
 - (instancetype)init
@@ -63,17 +56,12 @@
             [self setValue:array[i] forKeyPath:[properties[i] name]];
         }
     }
-    else if (NSDictionary *dict = RLMDynamicCast<NSDictionary>(value)) {
-        // validate and populate
-        dict = RLMValidatedDictionaryForObjectSchema(dict, _objectSchema, RLMSchema.sharedSchema);
+    else {
+        // assume our object is an NSDictionary or a an object with kvc properties
+        NSDictionary *dict = RLMValidatedDictionaryForObjectSchema(value, _objectSchema, RLMSchema.sharedSchema);
         for (NSString *name in dict) {
             [self setValue:dict[name] forKeyPath:name];
         }
-    }
-    else {
-        @throw [NSException exceptionWithName:@"RLMException"
-                                       reason:@"Values must be provided either as an array or dictionary"
-                                     userInfo:nil];
     }
 
     return self;
@@ -99,11 +87,26 @@
 }
 
 +(instancetype)createInDefaultRealmWithObject:(id)object {
-    return RLMCreateObjectInRealmWithValue([RLMRealm defaultRealm], [self className], object);
+    return RLMCreateObjectInRealmWithValue([RLMRealm defaultRealm], [self className], object, RLMSetFlagAllowCopy);
 }
 
 +(instancetype)createInRealm:(RLMRealm *)realm withObject:(id)value {
-    return RLMCreateObjectInRealmWithValue(realm, [self className], value);
+    return RLMCreateObjectInRealmWithValue(realm, [self className], value, RLMSetFlagAllowCopy);
+}
+
++(instancetype)createOrUpdateInDefaultRealmWithObject:(id)object {
+    // verify primary key
+    RLMObjectSchema *schema = [self sharedSchema];
+    if (!schema.primaryKeyProperty) {
+        NSString *reason = [NSString stringWithFormat:@"'%@' does not have a primary key and can not be updated", schema.className];
+        @throw [NSException exceptionWithName:@"RLMExecption" reason:reason userInfo:nil];
+    }
+
+    return RLMCreateObjectInRealmWithValue([RLMRealm defaultRealm], [self className], object, RLMSetFlagUpdateOrCreate | RLMSetFlagAllowCopy);
+}
+
++(instancetype)createOrUpdateInRealm:(RLMRealm *)realm withObject:(id)value {
+    return RLMCreateObjectInRealmWithValue(realm, [self className], value, RLMSetFlagUpdateOrCreate | RLMSetFlagAllowCopy);
 }
 
 // default attributes for property implementation
@@ -122,6 +125,11 @@
 
 // default ignored properties implementation
 + (NSArray *)ignoredProperties {
+    return nil;
+}
+
+// default primaryKey implementation
++ (NSString *)primaryKey {
     return nil;
 }
 
@@ -179,6 +187,14 @@
     return RLMGetObjects(realm, self.className, predicate);
 }
 
++ (instancetype)objectForPrimaryKey:(id)primaryKey {
+    return RLMGetObject(RLMRealm.defaultRealm, self.className, primaryKey);
+}
+
++ (instancetype)objectInRealm:(RLMRealm *)realm forPrimaryKey:(id)primaryKey {
+    return RLMGetObject(realm, self.className, primaryKey);
+}
+
 - (NSString *)JSONString {
     @throw [NSException exceptionWithName:@"RLMNotImplementedException"
                                    reason:@"Not yet implemented" userInfo:nil];
@@ -187,11 +203,9 @@
 // overridden at runtime per-class for performance
 + (NSString *)className {
     NSString *className = NSStringFromClass(self);
-#if REALM_SWIFT
     if ([RLMSwiftSupport isSwiftClassName:className]) {
         className = [RLMSwiftSupport demangleClassName:className];
     }
-#endif
     return className;
 }
 
@@ -202,6 +216,10 @@
 
 - (NSString *)description
 {
+    if (self.isDeletedFromRealm) {
+        return @"[deleted object]";
+    }
+
     return [self descriptionWithMaxDepth:5];
 }
 
@@ -253,7 +271,24 @@
 }
 
 - (BOOL)isEqual:(id)object {
-    return [self isEqualToObject:object];
+    if (_objectSchema.primaryKeyProperty) {
+        return [self isEqualToObject:object];
+    }
+    else {
+        return [super isEqual:object];
+    }
+}
+
+- (NSUInteger)hash {
+    if (_objectSchema.primaryKeyProperty) {
+        id primaryProperty = [self valueForKey:_objectSchema.primaryKeyProperty.name];
+
+        // modify the hash of our primary key value to avoid potential (although unlikely) collisions
+        return [primaryProperty hash] ^ 1;
+    }
+    else {
+        return [super hash];
+    }
 }
 
 @end

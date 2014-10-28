@@ -12,7 +12,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet weak var lbStatus: UILabel!
     @IBOutlet weak var lbSpotzName: UILabel!
     @IBOutlet weak var tableView: UITableView!
-    var spotzData: NSArray?
+    var spotzData: NSDictionary?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,7 +76,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         {
             self.lbSpotzName.hidden = true
             self.tableView.hidden = true
-            self.spotzData = []
+            self.spotzData = [:]
         }
     }
     
@@ -109,11 +109,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
-        var data:NSDictionary! = self.spotzData?.objectAtIndex(indexPath.row) as NSDictionary!
-        
         var cell:UITableViewCell = tableView.dequeueReusableCellWithIdentifier("dataCell") as UITableViewCell
-        cell.textLabel?.text = data["key"] as String?
-        cell.detailTextLabel?.text = data["value"] as String?
+        cell.textLabel.text = self.spotzData?.allKeys[indexPath.row] as NSString?
+        cell.detailTextLabel?.text = self.spotzData?.allValues[indexPath.row] as NSString?
         
         return cell
     }

@@ -21,7 +21,7 @@
 #import "RLMRealm_Private.hpp"
 #import "RLMSchema_Private.h"
 #import "RLMObjectSchema_Private.hpp"
-#import "RLMObjectStore.h"
+#import "RLMObjectStore.hpp"
 #import "RLMQueryUtil.hpp"
 #import "RLMConstants.h"
 #import <objc/runtime.h>
@@ -31,14 +31,28 @@
 //
 // RLMArray implementation
 //
-@implementation RLMArrayTableView
+@implementation RLMArrayTableView {
+    std::unique_ptr<tightdb::Query> _backingQuery;
+    tightdb::TableView _backingView;
+    BOOL _viewCreated;
+}
 
 + (instancetype)arrayWithObjectClassName:(NSString *)objectClassName
-                                   query:(tightdb::Query &)query
+                                   query:(std::unique_ptr<tightdb::Query>)query
                                   realm:(RLMRealm *)realm {
     RLMArrayTableView *ar = [[RLMArrayTableView alloc] initViewWithObjectClassName:objectClassName];
     ar->_viewCreated = NO;
-    ar->_backingQuery = query;
+    ar->_backingQuery = move(query);
+    ar->_realm = realm;
+    return ar;
+}
+
++ (instancetype)arrayWithObjectClassName:(NSString *)objectClassName
+                                    view:(tightdb::TableView)view
+                                   realm:(RLMRealm *)realm {
+    RLMArrayTableView *ar = [[RLMArrayTableView alloc] initViewWithObjectClassName:objectClassName];
+    ar->_viewCreated = YES;
+    ar->_backingView = move(view);
     ar->_realm = realm;
     return ar;
 }
@@ -53,7 +67,7 @@
 static inline void RLMArrayTableViewValidateAttached(RLMArrayTableView *ar) {
     if (!ar->_viewCreated) {
         // create backing view if needed
-        ar->_backingView = ar->_backingQuery.find_all();
+        ar->_backingView = ar->_backingQuery->find_all();
         ar->_viewCreated = YES;
     }
     else {
@@ -63,14 +77,12 @@ static inline void RLMArrayTableViewValidateAttached(RLMArrayTableView *ar) {
         }
         ar->_backingView.sync_if_needed();
     }
-    RLMCheckThread(ar->_realm);
-    ar->_backingView.sync_if_needed();
 }
 static inline void RLMArrayTableViewValidate(RLMArrayTableView *ar) {
     RLMArrayTableViewValidateAttached(ar);
     RLMCheckThread(ar->_realm);
-    ar->_backingView.sync_if_needed();
 }
+
 static inline void RLMArrayTableViewValidateInWriteTransaction(RLMArrayTableView *ar) {
     // first verify attached
     RLMArrayTableViewValidate(ar);
@@ -86,13 +98,18 @@ static inline void RLMArrayTableViewValidateInWriteTransaction(RLMArrayTableView
 // public method implementations
 //
 - (NSUInteger)count {
-    RLMArrayTableViewValidate(self);
-    return _backingView.size();
+    if (_viewCreated) {
+        RLMArrayTableViewValidate(self);
+        return _backingView.size();
+    }
+    else {
+        RLMCheckThread(_realm);
+        return _backingQuery->count();
+    }
 }
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])buffer count:(NSUInteger)len {
-    RLMArrayTableViewValidateAttached(self);
-    RLMCheckThread(_realm);
+    RLMArrayTableViewValidate(self);
 
     __autoreleasing RLMCArrayHolder *items;
     if (state->state == 0) {
@@ -207,9 +224,9 @@ static inline void RLMArrayTableViewValidateInWriteTransaction(RLMArrayTableView
     RLMArrayTableViewValidate(self);
 
     // copy array and apply new predicate creating a new query and view
-    tightdb::Query query(_backingQuery, tightdb::Query::TCopyExpressionTag{});
-    RLMUpdateQueryWithPredicate(&query, predicate, _realm.schema, _realm.schema[self.objectClassName]);
-    return [RLMArrayTableView arrayWithObjectClassName:self.objectClassName query:query realm:_realm];
+    auto query = std::make_unique<tightdb::Query>(*_backingQuery, tightdb::Query::TCopyExpressionTag{});
+    RLMUpdateQueryWithPredicate(query.get(), predicate, _realm.schema, _realm.schema[self.objectClassName]);
+    return [RLMArrayTableView arrayWithObjectClassName:self.objectClassName query:move(query) realm:_realm];
 }
 
 - (RLMArray *)arraySortedByProperty:(NSString *)property ascending:(BOOL)ascending
@@ -217,9 +234,9 @@ static inline void RLMArrayTableViewValidateInWriteTransaction(RLMArrayTableView
     RLMArrayTableViewValidate(self);
 
     // apply order
-    tightdb::Query query(_backingQuery, tightdb::Query::TCopyExpressionTag{});
+    auto query = std::make_unique<tightdb::Query>(*_backingQuery, tightdb::Query::TCopyExpressionTag{});
     RLMArrayTableView *ar = [RLMArrayTableView arrayWithObjectClassName:self.objectClassName
-                                                                  query:query
+                                                                  query:move(query)
                                                                   realm:_realm];
     // attach new table view
     RLMArrayTableViewValidateAttached(ar);

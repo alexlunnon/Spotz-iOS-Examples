@@ -107,12 +107,12 @@
 + (NSString *)className;
 
 /**
- Create an RLMObject in the default Realm with a a given object.
+ Create an RLMObject in the default Realm with a given object.
 
  Creates an instance of this object and adds it to the default Realm populating
  the object with the given object.
 
- @param object  The object used to populate the object. This can be any key/value compliant
+ @param object  The object used to populate the object. This can be any key/value coding compliant
  object, or a JSON object such as those returned from the methods in NSJSONSerialization, or
  an NSArray with one object for each persisted property. An exception will be
  thrown if all required properties are not present or no default is provided.
@@ -130,7 +130,7 @@
  the object with the given object.
  
  @param realm   The Realm in which this object is persisted.
- @param object  The object used to populate the object. This can be any key/value compliant
+ @param object  The object used to populate the object. This can be any key/value coding compliant
                 object, or a JSON object such as those returned from the methods in NSJSONSerialization, or
                 an NSArray with one object for each persisted property. An exception will be
                 thrown if all required properties are not present or no default is provided.
@@ -140,6 +140,43 @@
  @see   defaultPropertyValues
  */
 +(instancetype)createInRealm:(RLMRealm *)realm withObject:(id)object;
+
+/**
+ Create or update an RLMObject in the default Realm with a given object.
+
+ This method can only be called on object types with a primary key defined. If there is already
+ an object with the same primary key value in the default RLMRealm its values are updated and the object
+ is returned. Otherwise this creates and populates a new instance of this object in the default Realm.
+
+ @param object  The object used to populate the object. This can be any key/value coding compliant
+ object, or a JSON object such as those returned from the methods in NSJSONSerialization, or
+ an NSArray with one object for each persisted property. An exception will be
+ thrown if all required properties are not present or no default is provided.
+
+ When passing in an NSArray, all properties must be present, valid and in the same order as the properties defined in the model.
+
+ @see   defaultPropertyValues, primaryKey
+ */
++(instancetype)createOrUpdateInDefaultRealmWithObject:(id)object;
+
+/**
+ Create or update an RLMObject with a given object.
+
+ This method can only be called on object types with a primary key defined. If there is already
+ an object with the same primary key value in the provided RLMRealm its values are updated and the object
+ is returned. Otherwise this creates and populates a new instance of this object in the provided Realm.
+
+ @param realm   The Realm in which this object is persisted.
+ @param object  The object used to populate the object. This can be any key/value coding compliant
+ object, or a JSON object such as those returned from the methods in NSJSONSerialization, or
+ an NSArray with one object for each persisted property. An exception will be
+ thrown if all required properties are not present or no default is provided.
+
+ When passing in an NSArray, all properties must be present, valid and in the same order as the properties defined in the model.
+
+ @see   defaultPropertyValues, primaryKey
+ */
++(instancetype)createOrUpdateInRealm:(RLMRealm *)realm withObject:(id)object;
 
 /**
  The Realm in which this object is persisted. Returns nil for standalone objects.
@@ -164,7 +201,26 @@
 
 /**
  Implement to set custom attributes for each property.
- 
+
+ The default attributes for each property should be obtained by calling
+ `[super attributesForProperty:propertyName]`, and then ORed together with
+ the attributes you wish to add. For example, to index a single property:
+
+     @interface Model : RLMObject
+     @property NSString *indexedProperty;
+     @property NSString *unindexedProperty;
+     @end
+
+     @implementation Model
+     + (RLMPropertyAttributes)attributesForProperty:(NSString *)propertyName {
+        RLMPropertyAttributes attributes = [super attributesForProperty:propertyName];
+        if ([propertyName isEqualToString:@"indexedProperty"]) {
+            attributes |= RLMPropertyAttributeIndexed;
+        }
+        return attributes;
+     }
+     @end
+
  @param propertyName    Name of property for which attributes have been requested.
  @return                Bitmask of property attributes for the given property.
  */
@@ -176,6 +232,15 @@
  @return    NSDictionary mapping property names to their default values.
  */
 + (NSDictionary *)defaultPropertyValues;
+
+/**
+ Implement to designate a property as the primary key for a RLMObject subclass. Only properties of
+ type RLMPropertyTypeString and RLMPropertyTypeInt can be designated as the primary key. Primary key 
+ properties enforce uniqueness for each value whenever the property is set which incurs some overhead.
+
+ @return    Name of the property designated as the primary key.
+ */
++ (NSString *)primaryKey;
 
 /**
  Implement to return an array of property names to ignore. These properties will not be persisted
@@ -217,6 +282,20 @@
  */
 + (RLMArray *)objectsWithPredicate:(NSPredicate *)predicate;
 
+/**
+ Get the single object with the given primary key from the default Realm.
+
+ Returns the object from the default Realm which has the given primary key, or
+ `nil` if the object does not exist. This is slightly faster than the otherwise
+ equivalent `[[SubclassName objectsWhere:@"primaryKeyPropertyName = %@", key] firstObject]`.
+
+ This method requires that `primaryKey` be overridden on the receiving subclass.
+
+ @return    An object of the subclass type or nil if an object with the given primary key does not exist.
+ @see       -primaryKey
+ */
++ (instancetype)objectForPrimaryKey:(id)primaryKey;
+
 
 /**---------------------------------------------------------------------------------------
  *  @name Querying Specific Realms
@@ -252,6 +331,30 @@
  */
 + (RLMArray *)objectsInRealm:(RLMRealm *)realm withPredicate:(NSPredicate *)predicate;
 
+/**
+ Get the single object with the given primary key from the specified Realm.
+
+ Returns the object from the specified Realm which has the given primary key, or
+ `nil` if the object does not exist. This is slightly faster than the otherwise
+ equivalent `[[SubclassName objectsInRealm:realm where:@"primaryKeyPropertyName = %@", key] firstObject]`.
+
+ This method requires that `primaryKey` be overridden on the receiving subclass.
+
+ @return    An object of the subclass type or nil if an object with the given primary key does not exist.
+ @see       -primaryKey
+ */
++ (instancetype)objectInRealm:(RLMRealm *)realm forPrimaryKey:(id)primaryKey;
+
+/**
+ Returns YES if another RLMObject points to the same object in a RLMRealm. For RLMObject types
+ with a primary, key, `isEqual:` is overridden to use this method (along with a corresponding
+ implementation for `hash`.
+
+ @param object  The object to compare to.
+
+ @return    YES if the object represents the same object in the same RLMRealm.
+ */
+- (BOOL)isEqualToObject:(RLMObject *)object;
 
 #pragma mark -
 
@@ -264,8 +367,8 @@
 //     id object = rlmObject[@"propertyName"];
 //
 
--(id)objectForKeyedSubscript:(NSString *)key;
--(void)setObject:(id)obj forKeyedSubscript:(NSString *)key;
+- (id)objectForKeyedSubscript:(NSString *)key;
+- (void)setObject:(id)obj forKeyedSubscript:(NSString *)key;
 
 #pragma mark -
 

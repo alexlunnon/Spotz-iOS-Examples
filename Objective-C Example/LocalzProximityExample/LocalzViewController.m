@@ -13,7 +13,7 @@
 @property (nonatomic,weak) IBOutlet UILabel *lbStatus;
 @property (weak, nonatomic) IBOutlet UILabel *lbSpotzName;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (nonatomic,strong) NSArray *spotzData;
+@property (nonatomic,strong) NSDictionary *spotzData;
 
 @end
 
@@ -86,7 +86,7 @@
     {
         self.lbSpotzName.hidden = YES;
         self.tableView.hidden = YES;
-        self.spotzData = @[];
+        self.spotzData = @{};
     }
 }
 
@@ -111,11 +111,9 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSDictionary *data = [self.spotzData objectAtIndex:indexPath.row];
-    
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"dataCell"];
-    cell.textLabel.text = data[@"key"];
-    cell.detailTextLabel.text = data[@"value"];
+    cell.textLabel.text = self.spotzData.allKeys[indexPath.row];
+    cell.detailTextLabel.text = self.spotzData.allValues[indexPath.row];
     
     return cell;
 }

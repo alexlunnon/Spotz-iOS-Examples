@@ -129,8 +129,7 @@ BOOL RLMIsObjectValidForProperty(id obj, RLMProperty *property) {
         case RLMPropertyTypeObject: {
             // only NSNull, nil, or objects which derive from RLMObject and match the given
             // object class are valid
-            BOOL isValidObject = RLMIsSubclass([obj class], [RLMObject class]) &&
-                                 [[[obj class] className] isEqualToString:property.objectClassName];
+            BOOL isValidObject = [RLMDynamicCast<RLMObject>(obj).objectSchema.className isEqualToString:property.objectClassName];
             return isValidObject || obj == nil || obj == NSNull.null;
         }
         case RLMPropertyTypeArray: {
@@ -140,9 +139,7 @@ BOOL RLMIsObjectValidForProperty(id obj, RLMProperty *property) {
             if (NSArray *array = RLMDynamicCast<NSArray>(obj)) {
                 // check each element for compliance
                 for (id el in array) {
-                    Class cls = [el class];
-                    if (!RLMIsKindOfclass(cls, RLMObject.class) ||
-                        ![[cls className] isEqualToString:property.objectClassName]) {
+                    if (![RLMDynamicCast<RLMObject>(el).objectSchema.className isEqualToString:property.objectClassName]) {
                         return NO;
                     }
                 }
@@ -190,9 +187,9 @@ NSDictionary *RLMValidatedDictionaryForObjectSchema(id value, RLMObjectSchema *o
     for (RLMProperty *prop in properties) {
         // set out object to validated input or default value
         id obj = (isDict || [value respondsToSelector:NSSelectorFromString(prop.name)]) ? [value valueForKey:prop.name] : nil;
-        obj = obj ?: defaults[prop.name];
+        obj = obj && obj != NSNull.null ? obj : defaults[prop.name];
         obj = RLMValidatedObjectForProperty(obj, prop, schema);
-        if (obj && obj != NSNull.null)
+        if (obj)
             outDict[prop.name] = obj;
     }
     return outDict;

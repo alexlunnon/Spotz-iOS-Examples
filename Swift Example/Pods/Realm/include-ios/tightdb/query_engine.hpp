@@ -90,7 +90,7 @@ AggregateState      State of the aggregate - contains a state variable that stor
 #include <functional>
 #include <algorithm>
 
-#include <tightdb/util/bind_ptr.hpp>
+#include <tightdb/util/shared_ptr.hpp>
 #include <tightdb/util/meta.hpp>
 #include <tightdb/unicode.hpp>
 #include <tightdb/utilities.hpp>
@@ -496,11 +496,11 @@ public:
 
     virtual ParentNode* clone() = 0;
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
+    virtual void translate_pointers(const std::map<ParentNode*, ParentNode*>& mapping)
     {
-        m_child = mapping[m_child];
+        m_child = mapping.find(m_child)->second;
         for (size_t i = 0; i < m_children.size(); ++i)
-            m_children[i] = mapping[m_children[i]];
+            m_children[i] = mapping.find(m_children[i])->second;
     }
 
 
@@ -536,13 +536,13 @@ protected:
 // Used for performing queries on a Tableview. This is done by simply passing the TableView to this query condition
 class ListviewNode: public ParentNode {
 public:
-    ListviewNode(const TableView& tv) : m_max(0), m_next(0), m_size(tv.size()), m_tv(tv) { m_child = 0; m_dT = 0.0; }
+    ListviewNode(TableView& tv) : m_max(0), m_next(0), m_size(tv.size()), m_tv(tv) { m_child = 0; m_dT = 0.0; }
     ~ListviewNode() TIGHTDB_NOEXCEPT TIGHTDB_OVERRIDE {  }
 
     // Return the n'th table row index contained in the TableView.
     size_t tableindex(size_t n)
     {
-        return to_size_t(m_tv.get_ref_column().get(n));
+        return to_size_t(m_tv.m_row_indexes.get(n));
     }
 
     virtual void init(const Table& table) TIGHTDB_OVERRIDE
@@ -563,7 +563,7 @@ public:
     {
         // Simply return index of first table row which is >= start
         size_t r;
-        r = m_tv.get_ref_column().find_gte(start, m_next);
+        r = m_tv.m_row_indexes.find_gte(start, m_next);
 
         if (r >= end)
             return not_found;
@@ -577,12 +577,7 @@ public:
         return new ListviewNode(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
-    {
-        ParentNode::translate_pointers(mapping);
-    }
-
-    ListviewNode(const ListviewNode& from) 
+    ListviewNode(const ListviewNode& from)
         : ParentNode(from), m_tv(from.m_tv)
     {
         m_max = from.m_max;
@@ -596,7 +591,7 @@ protected:
     size_t m_next;
     size_t m_size;
 
-    const TableView& m_tv;
+    TableView& m_tv;
 };
 
 // For conditions on a subtable (encapsulated in subtable()...end_subtable()). These return the parent row as match if and
@@ -669,10 +664,10 @@ public:
         return new SubtableNode(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
+    virtual void translate_pointers(const std::map<ParentNode*, ParentNode*>& mapping) TIGHTDB_OVERRIDE
     {
         ParentNode::translate_pointers(mapping);
-        m_child2 = mapping[m_child2];
+        m_child2 = mapping.find(m_child2)->second;
     }
 
     SubtableNode(const SubtableNode& from) 
@@ -733,12 +728,7 @@ public:
         m_matches = 0;
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
-    {
-        ParentNode::translate_pointers(mapping);
-    }
-
-    IntegerNodeBase(const IntegerNodeBase& from) 
+    IntegerNodeBase(const IntegerNodeBase& from)
         : ParentNode(from), m_array(Array::no_prealloc_tag())
     {
         // state is transient/only valid during search, no need to copy
@@ -952,12 +942,7 @@ public:
         return new IntegerNode<TConditionValue, TConditionFunction>(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
-    {
-        IntegerNodeBase::translate_pointers(mapping);
-    }
-
-    IntegerNode(const IntegerNode& from) 
+    IntegerNode(const IntegerNode& from)
         : IntegerNodeBase(from)
     {
         m_value = from.m_value;
@@ -1020,12 +1005,7 @@ public:
         return new FloatDoubleNode(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
-    {
-        ParentNode::translate_pointers(mapping);
-    }
-
-    FloatDoubleNode(const FloatDoubleNode& from) 
+    FloatDoubleNode(const FloatDoubleNode& from)
         : ParentNode(from)
     {
         m_value = from.m_value;
@@ -1087,12 +1067,7 @@ public:
         return new BinaryNode(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
-    {
-        ParentNode::translate_pointers(mapping);
-    }
-
-    BinaryNode(const BinaryNode& from) 
+    BinaryNode(const BinaryNode& from)
         : ParentNode(from)
     {
         // FIXME: Store this in std::string instead.
@@ -1290,11 +1265,6 @@ public:
         return new StringNode<TConditionFunction>(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
-    {
-        StringNodeBase::translate_pointers(mapping);
-    }
-
     StringNode(const StringNode& from) : StringNodeBase(from)
     {
         size_t sz = 6 * m_value.size();
@@ -1356,14 +1326,14 @@ public:
             m_dT = 1.0;
             m_key_ndx = ((const ColumnStringEnum*)m_condition_column)->GetKeyNdx(m_value);
         }
-        else if (m_condition_column->has_index()) {
+        else if (m_condition_column->has_search_index()) {
             m_dT = 0.0;
         }
         else {
             m_dT = 10.0;
         }
 
-        if (m_condition_column->has_index()) {
+        if (m_condition_column->has_search_index()) {
 
             FindRes fr;
             size_t index_ref;
@@ -1415,7 +1385,7 @@ public:
         TIGHTDB_ASSERT(m_table);
 
         for (size_t s = start; s < end; ++s) {
-            if (m_condition_column->has_index()) {
+            if (m_condition_column->has_search_index()) {
 
                 // Indexed string column
                 size_t f = not_found;
@@ -1493,12 +1463,6 @@ public:
     {
         return new StringNode<Equal>(*this);
     }
-
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
-    {
-        StringNodeBase::translate_pointers(mapping);
-    }
-
 
 private:
     inline BinaryData str_to_bin(const StringData& s) TIGHTDB_NOEXCEPT
@@ -1619,11 +1583,11 @@ public:
         return new OrNode(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
+    virtual void translate_pointers(const std::map<ParentNode*, ParentNode*>& mapping) TIGHTDB_OVERRIDE
     {
         ParentNode::translate_pointers(mapping);
-        m_cond[0] = mapping[m_cond[0]];
-        m_cond[1] = mapping[m_cond[1]];
+        m_cond[0] = mapping.find(m_cond[0])->second;
+        m_cond[1] = mapping.find(m_cond[1])->second;
     }
 
     OrNode(const OrNode& from) 
@@ -1733,10 +1697,10 @@ public:
         return new NotNode(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
+    virtual void translate_pointers(const std::map<ParentNode*, ParentNode*>& mapping) TIGHTDB_OVERRIDE
     {
         ParentNode::translate_pointers(mapping);
-        m_cond = mapping[m_cond];
+        m_cond = mapping.find(m_cond)->second;
     }
 
     NotNode(const NotNode& from) 
@@ -1841,12 +1805,7 @@ public:
         return new TwoColumnsNode<TConditionValue, TConditionFunction>(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
-    {
-        ParentNode::translate_pointers(mapping);
-    }
-
-    TwoColumnsNode(const TwoColumnsNode& from) 
+    TwoColumnsNode(const TwoColumnsNode& from)
         : ParentNode(from)
     {
         m_value = from.m_value;
@@ -1880,16 +1839,13 @@ protected:
 class ExpressionNode: public ParentNode {
 
 public:
-    ~ExpressionNode() TIGHTDB_NOEXCEPT
-    {
-        m_compare.reset();
-    }
+    ~ExpressionNode() TIGHTDB_NOEXCEPT { }
 
     ExpressionNode(Expression* compare, bool auto_delete)
     {
         m_auto_delete = auto_delete;
         m_child = 0;
-        m_compare = util::bind_ptr<Expression>(compare);
+        m_compare = util::SharedPtr<Expression>(compare);
         m_dD = 10.0;
         m_dT = 50.0;
     }
@@ -1912,11 +1868,6 @@ public:
         return new ExpressionNode(*this);
     }
 
-    virtual void translate_pointers(std::map<ParentNode*, ParentNode*> mapping)
-    {
-        ParentNode::translate_pointers(mapping);
-    }
-
     ExpressionNode(ExpressionNode& from) 
         : ParentNode(from)
     {
@@ -1925,7 +1876,7 @@ public:
     }
 
     bool m_auto_delete;
-    util::bind_ptr<Expression> m_compare;
+    util::SharedPtr<Expression> m_compare;
 };
 
 
@@ -1939,7 +1890,7 @@ public:
         m_dT = 50.0;
     }
 
-    void init(const Table& table)  TIGHTDB_OVERRIDE
+    void init(const Table& table) TIGHTDB_OVERRIDE
     {
         m_table = &table;
         if (m_child)

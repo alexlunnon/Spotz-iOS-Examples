@@ -24,6 +24,8 @@
 	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Please provide location access to make rainbows appear</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

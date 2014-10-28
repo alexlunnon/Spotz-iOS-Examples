@@ -12,13 +12,13 @@
 	<dict>
 		<key>0E740DD126E9F141BA6555A34042CAE8B823B1B8</key>
 		<string>https://github.com/localz/Spotz-iOS-Examples.git</string>
-		<key>D3AFEA52A81EAD42C3037F0D51C8C1E4D6BAB9F6</key>
-		<string>/Users/Daniel/Library/Caches/CocoaPods/GitHub/011887ac1bc6093524059d68d99d07f654c2f49d</string>
 	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Swift Example/SpotzDemo.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>D3AFEA52A81EAD42C3037F0D51C8C1E4D6BAB9F6</key>
-		<string>SpotzSDK</string>
+		<key>0E740DD126E9F141BA6555A34042CAE8B823B1B8</key>
+		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/localz/Spotz-iOS-Examples.git</string>
@@ -32,9 +32,9 @@
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>D3AFEA52A81EAD42C3037F0D51C8C1E4D6BAB9F6</string>
+			<string>0E740DD126E9F141BA6555A34042CAE8B823B1B8</string>
 			<key>IDESourceControlWCCName</key>
-			<string>SpotzSDK</string>
+			<string>Spotz-iOS-Examples</string>
 		</dict>
 	</array>
 </dict>
