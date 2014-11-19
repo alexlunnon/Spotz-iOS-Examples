@@ -17,17 +17,18 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         
+        // start with a clean interface
         self.showSpotzDetails(nil)
         self.showBeaconDetails(nil)
         
-        // set up to recieve notifications from a spot
+        // set sdk notifications
         NSNotificationCenter.defaultCenter().addObserverForName(SpotzInsideNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
             self.lbStatus.text = "Spotz rocks!"
             
             if note.object != nil
             {
+                // the dictionary will contain a spotz object and a beacon object from inside notification
                 var data: NSDictionary! = note.object as NSDictionary
                 var spotz: Spotz! = data["spotz"] as Spotz
                 var beacon: SpotzBeacon! = data["beacon"] as SpotzBeacon
@@ -36,42 +37,54 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 NSLog("Enter beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid!,beacon.major,beacon.minor);
                 NSLog("Spotz id: %@ name: %@",spotz.id!,spotz.name!);
                 
+                // show the spotz and beacon data
                 self.showSpotzDetails(spotz)
                 self.showBeaconDetails(beacon)
             }
             else
             {
-                self.showSpotzDetails(nil)
                 self.showBeaconDetails(nil)
+                self.showSpotzDetails(nil)
             }
-            
-            self.tableView.reloadData()
         }
         NSNotificationCenter.defaultCenter().addObserverForName(SpotzOutsideNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
             
-            self.lbStatus.text = "Find me spotz yo!"
-            self.showSpotzDetails(nil)
-            self.showBeaconDetails(nil)
             if note.object != nil
             {
+                // the dictionary will contain a spotz object and a beacon object from outside notification
                 var data: NSDictionary! = note.object as NSDictionary
                 var spotz: Spotz! = data["spotz"] as Spotz
                 var beacon: SpotzBeacon! = data["beacon"] as SpotzBeacon
+                
+                // if we have received an outside notification from the current spot, clear the screen (if not, the screen will contain info from another spot which we want to keep there)
+                if self.lbBeaconDetails.text == String(format:"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid)
+                {
+                    self.lbStatus.text = "Find me spotz yo!"
+                    self.showBeaconDetails(nil)
+                    self.showSpotzDetails(nil)
+                }
                 
                 NSLog("Exit beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid!,beacon.major,beacon.minor);
                 NSLog("Spotz id: %@ name: %@",spotz.id!,spotz.name!);
             }
         }
         NSNotificationCenter.defaultCenter().addObserverForName(SpotzRangingNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
+            // beacon details are not relevant so hide clear them
+            self.showBeaconDetails(nil)
+            
             if note.object != nil {
+                // the dictionary will contain a spotz object and its accuracy
                 var data: NSDictionary! = note.object as NSDictionary
                 
                 var spotz = data["spotz"] as Spotz!
                 var acc = data["accuracy"] as NSNumber!
                 
                 NSLog("Show spotz ranging details")
+                
+                // show any spotz data
                 self.showSpotzDetails(spotz)
                 
+                // show the accuracy of the spotz
                 self.lbBeaconDetails.hidden = false
                 self.lbBeaconDetails.text = String(format: "Accuracy: %fm", acc.floatValue)
             }
@@ -86,17 +99,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         if spotz != nil
         {
+            // show the spotz name and any attributes
             self.lbSpotzName.hidden = false
             self.tableView.hidden = false
             self.lbSpotzName.text = spotz.name
             
-            if spotz.data.count > 0
-            {
-                self.spotzData = spotz.data
-            }
+            self.spotzData = spotz.data
+            self.tableView.reloadData()
         }
         else
         {
+            // hide the spotz name and any attributes
             self.lbSpotzName.hidden = true
             self.tableView.hidden = true
             self.spotzData = [:]
@@ -107,25 +120,27 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         if beacon != nil
         {
+            // show the major, minor, serial and uuid of the beacon
             self.lbBeaconDetails.hidden = false
             self.lbBeaconDetails.text = String(format:"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid)
         }
         else
         {
+            // hide the major, minor, serial and uuid of the beacon
             self.lbBeaconDetails.hidden = true
         }
     }
     
     
     // Button actions
-    
+    //////
     @IBAction func refreshSpotz() {
         SpotzSDK.checkSpotz()
     }
     
     
     // UITableViewDataSource
-    
+    //////
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if self.spotzData == nil
@@ -145,6 +160,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
+        // fill each cell with a attribute
         var cell:UITableViewCell = tableView.dequeueReusableCellWithIdentifier("dataCell") as UITableViewCell
         cell.textLabel.text = self.spotzData?.allKeys[indexPath.row] as NSString?
         cell.detailTextLabel?.text = self.spotzData?.allValues[indexPath.row] as NSString?

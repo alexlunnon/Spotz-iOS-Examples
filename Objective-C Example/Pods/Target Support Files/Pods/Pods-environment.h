@@ -20,7 +20,8 @@
 
 // SpotzSDK
 #define COCOAPODS_POD_AVAILABLE_SpotzSDK
-#define COCOAPODS_VERSION_MAJOR_SpotzSDK 1
-#define COCOAPODS_VERSION_MINOR_SpotzSDK 0
-#define COCOAPODS_VERSION_PATCH_SpotzSDK 5
+// This library does not follow semantic-versioning,
+// so we were not able to define version macros.
+// Please contact the author.
+// Version: 1.0.5.5.
 

@@ -59,6 +59,12 @@ extern NSString * const SpotzRangingNotification;
 + (void) initializeWithAppId:(NSString *)appId clientKey:(NSString *)clientKey delegate:(id)delegate withOptions:(id)options;
 
 /**
+ * Retry initializing spotz and downloads the spotz definitions if the initial initialization threw an error. It will call the SpotzSDKDelegate methods as defined by initializeWithAppId.
+ * Please run initializeWithAppId prior to running this method
+ */
++ (void) reinitialize;
+
+/**
  *  Register push notification device token for Push Notification
  *
  *  @param deviceToken deviceToken
@@ -67,9 +73,15 @@ extern NSString * const SpotzRangingNotification;
 + (void) registerPushDeviceToken:(NSData *)deviceToken;
 
 /**
- *  This will force check for beacons and trigger spotz notifications if any
+ *  This will check status of spotz and re-trigger spotz notifications if any
  */
 + (void) checkSpotz;
+
+/**
+ *  This will force check the beacon status and trigger spotz notifications if any
+ *  If spotz is outside the region, will be notified ~ 10 seconds in foreground.
+ */
++ (void) forceCheckSpotz;
 
 /**
  *  Clear all spotz cached data. To restart please call startServices.
@@ -102,6 +114,16 @@ extern NSString * const SpotzRangingNotification;
  *  Please run [SpotzSDK checkLocationServices] to check the state of location service.
  */
 + (void) startServices;
+
+/**
+ * Start connection check. The returned value is available via isReachable. Please note that this method takes a few seconds before it returns a valid value. If status changed to non-reachable it will throw SpotzServerNotReachableNotification
+ */
++ (void) startReachableCheck;
+
+/**
+ *  Check if Spotz API is reachable. Please ensure startReachableCheck is run before checking this value.
+ */
++ (BOOL) isReachable;
 
 /**
  * Start ranging service for beacons that are marked for ranging
