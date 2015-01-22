@@ -16,4 +16,5 @@
 @property (nonatomic) int radius;
 @property (nonatomic,strong)  NSString *vendor;
 @property (nonatomic,strong)  NSString *serial;
+@property (nonatomic) int ranging;
 @end

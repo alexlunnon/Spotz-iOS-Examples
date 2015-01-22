@@ -17,8 +17,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SpotzSDKDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         
+        // make sure the sdk is clean before we start
         SpotzSDK.reset()
         
+        // your app and ios id from your app on the spotz website
         SpotzSDK.initializeWithAppId("<Insert Application ID here>", clientKey: "<Insert iOS Client ID here>", delegate: self, withOptions:nil)
         
         return true
@@ -49,23 +51,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SpotzSDKDelegate {
     
     
     ///////
-    //SpotzSDKDelegate
+    // SpotzSDKDelegate
     ///////
-    func spotzSDKInitFailed(error: NSError!) {
-        NSLog("spotz init failed. %@", error)
-    }
-    
     func spotzSDKInitSuccessfull() {
-        NSLog("spotz init successfull")
+        NSLog("SpotzSDK initialized successfully")
         SpotzSDK.startServices()
     }
     
-    func spotzSDKPushNotificationRegistrationFailed(error: NSError!) {
-        NSLog("spotz push notification registration failed. %@", error)
+    func spotzSDKInitFailed(error: NSError!) {
+        NSLog("Error %@", error)
     }
-
+    
     func spotzSDKPushNotificationRegistrationSuccess() {
-        NSLog("spotz push notification registration successfull")
+        NSLog("SpotzSDK push notification registration successfull")
+    }
+    
+    func spotzSDKPushNotificationRegistrationFailed(error: NSError!) {
+        NSLog("SpotzSDK push notification registration failed. %@", error)
     }
 }
 

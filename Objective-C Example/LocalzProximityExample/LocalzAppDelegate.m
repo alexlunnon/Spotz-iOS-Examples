@@ -8,15 +8,20 @@
 
 #import "LocalzAppDelegate.h"
 #import <SpotzSDK/SpotzSDK.h>
+
 @interface LocalzAppDelegate()<SpotzSDKDelegate>
 @end
+
 @implementation LocalzAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    
+    // make sure the sdk is clean before we start
     [SpotzSDK reset];
     
+    // your app and ios id from your app on the spotz website
     [SpotzSDK initializeWithAppId:@"<Insert Application ID here>" clientKey:@"<Insert iOS Client ID here>" delegate:self withOptions:nil];
 
     return YES;
@@ -49,6 +54,7 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+
 #pragma mark - SpotzSDK delegates
 
 - (void)spotzSDKInitSuccessfull
@@ -61,4 +67,15 @@
 {
     NSLog(@"Error %@",error);
 }
+
+- (void)spotzSDKPushNotificationRegistrationSuccess
+{
+    NSLog(@"SpotzSDK push notification registration successfull");
+}
+
+- (void)spotzSDKPushNotificationRegistrationFailed:(NSError *)error
+{
+    NSLog(@"SpotzSDK push notification registration failed. %@", error);
+}
+
 @end
