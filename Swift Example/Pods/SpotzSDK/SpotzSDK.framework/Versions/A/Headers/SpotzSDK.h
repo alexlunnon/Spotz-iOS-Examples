@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "Spotz.h"
 #import "SpotzBeacon.h"
 
@@ -38,6 +39,12 @@ extern NSString * const SpotzOutsideNotification;
  */
 extern NSString * const SpotzRangingNotification;
 
+/**
+ *  Notification when ranging information available
+ */
+extern NSString * const SpotzExtensionNotification;
+
+
 @protocol SpotzSDKDelegate <NSObject>
 @optional
 - (void) spotzSDKInitSuccessfull;
@@ -59,18 +66,38 @@ extern NSString * const SpotzRangingNotification;
 + (void) initializeWithAppId:(NSString *)appId clientKey:(NSString *)clientKey delegate:(id)delegate withOptions:(id)options;
 
 /**
+ *  Set identity and attributes that identify this device/user. This is optional. All information set will be
+ *  sent to the extensions set in Spotz Platform. Please refer to Spotz Documentation for specific extensions attributes
+ */
++ (void) identity:(NSString *)identityId attributes:(NSDictionary *)attributes;
+
+/**
  * Retry initializing spotz and downloads the spotz definitions if the initial initialization threw an error. It will call the SpotzSDKDelegate methods as defined by initializeWithAppId.
  * Please run initializeWithAppId prior to running this method
  */
 + (void) reinitialize;
 
 /**
- *  Register push notification device token for Push Notification
+ *  Register push notification device token for Push Notifications
  *
  *  @param deviceToken deviceToken
- *  @param completion  completion
  */
-+ (void) registerPushDeviceToken:(NSData *)deviceToken;
++ (void) registeredForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+
+/**
+ *  Validates the failed push notification error and forwards this to the spotzSDKPushNotificationRegistrationFailed method
+ *
+ *  @param error error returned from didFailToRegisterForRemoteNotificationsWithError
+ */
++ (void) failedToRegisterForRemoteNotificationsWithError:(NSError *)error;
+
+/**
+ *  Unpacks the notification message and posts it inside a NSNotification - SpotzExtensionNotification
+ *
+ *  @param userInfo dictionary of the push notification
+ *  @param state application state of the current device
+ */
++ (void) receivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state;
 
 /**
  *  This will check status of spotz and re-trigger spotz notifications if any
@@ -126,10 +153,10 @@ extern NSString * const SpotzRangingNotification;
 + (BOOL) isReachable;
 
 /**
- * Start ranging service for beacons that are marked for ranging
- * When beacon is found and matched the range specified in the
+ *  Forces the SDK to act as if there is no internet connection and use the localy stored spotz instead.
+ *  NOTE: calling reset will destroy any cache data used for offline usage data
  */
-//+ (void) startRangingSpotzId:(NSString *)spotzId;
++ (void) setOfflineForced:(BOOL)offline;
 
 @property (nonatomic,assign) id<SpotzSDKDelegate> delegate;
 

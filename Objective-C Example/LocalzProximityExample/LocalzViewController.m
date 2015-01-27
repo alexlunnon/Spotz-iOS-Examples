@@ -110,7 +110,7 @@
             NSString* beaconAccJSON = [[NSString alloc] initWithBytes:[beaconAccData bytes] length:[beaconAccData length] encoding:NSUTF8StringEncoding];
             
             
-            NSString *str = [NSString stringWithFormat:@"rangeData(%@,%@,%@)",spotzNameJSON,spotzDataJSON,beaconAccJSON];
+            NSString *str = [NSString stringWithFormat:@"rangeData(%@,%@,%@)",spotzNameJSON,beaconAccJSON,spotzDataJSON];
             
             [self.webview stringByEvaluatingJavaScriptFromString:str];
         }
@@ -118,14 +118,13 @@
     }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzExtensionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-         NSLog(@"Extension payload recieved: %@", note.object);
+         NSLog(@"Spotz Extension");
          
          if (note.object)
          {
-             // Payload Dictionary to JSON
-             NSString *payload = note.object;
-             NSData* extensionPayload = [NSJSONSerialization dataWithJSONObject:@{@"payload":payload} options:0 error:nil];
-             NSString* extensionJSON = [[NSString alloc] initWithBytes:[extensionPayload bytes] length:[extensionPayload length] encoding:NSUTF8StringEncoding];
+             // Payload String to JSON
+             NSData* extensionData = [NSJSONSerialization dataWithJSONObject:@{@"payload":note.object} options:0 error:nil];
+             NSString* extensionJSON = [[NSString alloc] initWithBytes:[extensionData bytes] length:[extensionData length] encoding:NSUTF8StringEncoding];
              
              
              NSString *str = [NSString stringWithFormat:@"extensionData(%@)",extensionJSON];
@@ -134,6 +133,7 @@
          }
     }];
 }
+
 
 - (void)didReceiveMemoryWarning
 {
