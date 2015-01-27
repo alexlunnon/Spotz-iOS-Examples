@@ -18,9 +18,6 @@
 {
     // Override point for customization after application launch.
     
-    // make sure the sdk is clean before we start
-    [SpotzSDK reset];
-    
     // your app and ios id from your app on the spotz website
     [SpotzSDK initializeWithAppId:@"<Insert Application ID here>" clientKey:@"<Insert iOS Client ID here>" delegate:self withOptions:nil];
 

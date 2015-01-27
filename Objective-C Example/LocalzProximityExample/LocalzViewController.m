@@ -9,13 +9,9 @@
 #import "LocalzViewController.h"
 #import <SpotzSDK/SpotzSDK.h>
 
-@interface LocalzViewController ()<UITableViewDataSource,UITableViewDelegate>
-@property (weak, nonatomic) IBOutlet UILabel *lbStatus;
-@property (weak, nonatomic) IBOutlet UILabel *lbSpotzName;
-@property (weak, nonatomic) IBOutlet UILabel *lbBeaconDetails;
-@property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (strong, nonatomic) NSDictionary *spotzData;
-
+@interface LocalzViewController ()
+@property (weak, nonatomic) IBOutlet UIWebView *webview;
+@property (nonatomic,strong) NSDictionary *spotzData;
 @end
 
 @implementation LocalzViewController
@@ -25,150 +21,119 @@
     [super viewDidLoad];
     
     // Do any additional setup after loading the view, typically from a nib.
-    [self showSpotzDetails:nil];
-    [self showBeaconDetails:nil];
     
+    [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localz.co/spotz-web-examples/index.html"]]];
+
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzInsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        self.lbStatus.text = @"Spotz rocks!";
+        NSLog(@"Spotz inside");
         
         if(note.object)
         {
-            // the dictionary will contain a spotz object and a beacon object from inside notification
-            NSDictionary *data = note.object;
-            Spotz *spotz = data[@"spotz"];
-            SpotzBeacon *beacon = data[@"beacon"];
-            NSLog(@"Show spotz details");
+            NSDictionary *payload = note.object;
+            Spotz *spotz = payload[@"spotz"];
+            SpotzBeacon *beacon = payload[@"beacon"];
             
-            NSLog(@"Enter beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
-            NSLog(@"Spotz id: %@ name: %@",spotz.id,spotz.name);
             
-            // show the spotz and beacon data
-            [self showSpotzDetails:spotz];
-            [self showBeaconDetails:beacon];
-        }
-        else
-        {
-            [self showSpotzDetails:nil];
-            [self showBeaconDetails:nil];
+            // Spotz Data to JSON
+            NSDictionary *data = spotz.data;
+            NSData* spotzData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+            NSString* spotzDataJSON = [[NSString alloc] initWithBytes:[spotzData bytes] length:[spotzData length] encoding:NSUTF8StringEncoding];
+            
+            // Spotz Name to JSON
+            NSDictionary *spotzName = @{@"id":spotz.id,@"name":spotz.name};
+            NSData* spotzNameData = [NSJSONSerialization dataWithJSONObject:spotzName options:0 error:nil];
+            NSString* spotzNameJSON = [[NSString alloc] initWithBytes:[spotzNameData bytes] length:[spotzNameData length] encoding:NSUTF8StringEncoding];
+            
+            // Spotz Beacon to JSON
+            NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor]};
+            NSData* spotzBeaconData = [NSJSONSerialization dataWithJSONObject:spotzBeacon options:0 error:nil];
+            NSString* spotzBeaconJSON = [[NSString alloc] initWithBytes:[spotzBeaconData bytes] length:[spotzBeaconData length] encoding:NSUTF8StringEncoding];
+            
+            
+            NSString *str = [NSString stringWithFormat:@"displayData(%@,%@,%@)",spotzNameJSON,spotzBeaconJSON,spotzDataJSON];
+            
+            [self.webview stringByEvaluatingJavaScriptFromString:str];
         }
     }];
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzOutsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        NSLog(@"Spotz outside");
         
         if(note.object)
         {
-            // the dictionary will contain a spotz object and a beacon object from outside notification
-            NSDictionary *data = note.object;
-            Spotz *spotz = data[@"spotz"];
-            SpotzBeacon *beacon = data[@"beacon"];
+            NSDictionary *payload = note.object;
+            Spotz *spotz = payload[@"spotz"];
+            SpotzBeacon *beacon = payload[@"beacon"];
             
-            // if we have received an outside notification from the current spot, clear the screen (if not, the screen will contain info from another spot which we want to keep there)
-            if ([self.lbBeaconDetails.text isEqualToString:[NSString stringWithFormat:@"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid]])
-            {
-                self.lbStatus.text = @"Find me spotz yo!";
-                [self showSpotzDetails:nil];
-                [self showBeaconDetails:nil];
-            }
+            // Spotz Data to JSON
+            NSDictionary *data = spotz.data;
+            NSData* spotzData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+            NSString* spotzDataJSON = [[NSString alloc] initWithBytes:[spotzData bytes] length:[spotzData length] encoding:NSUTF8StringEncoding];
             
-            NSLog(@"Exit beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
-            NSLog(@"Spotz id: %@ name: %@",spotz.id,spotz.name);
+            // Spotz Name to JSON
+            NSDictionary *spotzName = @{@"id":spotz.id,@"name":spotz.name};
+            NSData* spotzNameData = [NSJSONSerialization dataWithJSONObject:spotzName options:0 error:nil];
+            NSString* spotzNameJSON = [[NSString alloc] initWithBytes:[spotzNameData bytes] length:[spotzNameData length] encoding:NSUTF8StringEncoding];
+            
+            // Spotz Beacon to JSON
+            NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor]};
+            NSData* spotzBeaconData = [NSJSONSerialization dataWithJSONObject:spotzBeacon options:0 error:nil];
+            NSString* spotzBeaconJSON = [[NSString alloc] initWithBytes:[spotzBeaconData bytes] length:[spotzBeaconData length] encoding:NSUTF8StringEncoding];
+            
+            
+            NSString *str = [NSString stringWithFormat:@"hideData(%@,%@,%@)",spotzNameJSON,spotzBeaconJSON,spotzDataJSON];
+            
+            [self.webview stringByEvaluatingJavaScriptFromString:str];
         }
     }];
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzRangingNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        // beacon details are not relevant so hide clear them
-        [self showBeaconDetails:nil];
+        NSLog(@"Spotz ranging");
         
         if (note.object)
         {
-            // the dictionary will contain a spotz object and its accuracy
-            NSDictionary *data = note.object;
+            NSDictionary *payload = note.object;
+            Spotz *spotz = payload[@"spotz"];
+            NSNumber *acc = payload[@"accuracy"];
             
-            Spotz *spotz = data[@"spotz"];
-            NSNumber *acc = data[@"accuracy"];
+            // Spotz Data to JSON
+            NSDictionary *data = spotz.data;
+            NSData* spotzData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+            NSString* spotzDataJSON = [[NSString alloc] initWithBytes:[spotzData bytes] length:[spotzData length] encoding:NSUTF8StringEncoding];
             
-            NSLog(@"Show spotz ranging details");
+            // Spotz Name to JSON
+            NSDictionary *spotzName = @{@"id":spotz.id,@"name":spotz.name};
+            NSData* spotzNameData = [NSJSONSerialization dataWithJSONObject:spotzName options:0 error:nil];
+            NSString* spotzNameJSON = [[NSString alloc] initWithBytes:[spotzNameData bytes] length:[spotzNameData length] encoding:NSUTF8StringEncoding];
             
-            // show any spotz data
-            [self showSpotzDetails:spotz];
+            // Beacon Accuracy to JSON
+            NSDictionary *beaconAcc = @{@"acc":[NSNumber numberWithFloat:acc.floatValue]};
+            NSData* beaconAccData = [NSJSONSerialization dataWithJSONObject:beaconAcc options:0 error:nil];
+            NSString* beaconAccJSON = [[NSString alloc] initWithBytes:[beaconAccData bytes] length:[beaconAccData length] encoding:NSUTF8StringEncoding];
             
-            // show the accuracy of the spotz
-            self.lbBeaconDetails.hidden = false;
-            self.lbBeaconDetails.text = [NSString stringWithFormat:@"Accuracy: %fm", acc.floatValue];
-        }
-        else
-        {
-            self.lbBeaconDetails.hidden = true;
+            
+            NSString *str = [NSString stringWithFormat:@"rangeData(%@,%@,%@)",spotzNameJSON,spotzDataJSON,beaconAccJSON];
+            
+            [self.webview stringByEvaluatingJavaScriptFromString:str];
         }
         
     }];
-}
-
-- (void) showSpotzDetails:(Spotz *)spotz
-{
-    if(spotz)
-    {
-        // show the spotz name and any attributes
-        self.lbSpotzName.hidden = NO;
-        self.tableView.hidden = NO;
-        self.lbSpotzName.text = spotz.name;
-        
-        self.spotzData = spotz.data;
-        [self.tableView reloadData];
-    }
-    else
-    {
-        // hide the spotz name and any attributes
-        self.lbSpotzName.hidden = YES;
-        self.tableView.hidden = YES;
-        self.spotzData = @{};
-    }
-}
-
-- (void) showBeaconDetails:(SpotzBeacon *)beacon
-{
-    if (beacon)
-    {
-        // show the major, minor, serial and uuid of the beacon
-        self.lbBeaconDetails.hidden = false;
-        self.lbBeaconDetails.text = [NSString stringWithFormat:@"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid];
-    }
-    else
-    {
-        // hide the major, minor, serial and uuid of the beacon
-        self.lbBeaconDetails.hidden = true;
-    }
-}
-
-
-#pragma mark - Button actions
-
-- (IBAction)btnRecheckTapped:(id)sender
-{
-    [SpotzSDK checkSpotz];
-}
-
-
-#pragma mark - Table delegates
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    return 1;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    return self.spotzData.count;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // fill each cell with a attribute
-    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"dataCell"];
-    cell.textLabel.text = self.spotzData.allKeys[indexPath.row];
-    cell.detailTextLabel.text = self.spotzData.allValues[indexPath.row];
     
-    return cell;
+    [[NSNotificationCenter defaultCenter] addObserverForName:SpotzExtensionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+         NSLog(@"Extension payload recieved: %@", note.object);
+         
+         if (note.object)
+         {
+             // Payload Dictionary to JSON
+             NSString *payload = note.object;
+             NSData* extensionPayload = [NSJSONSerialization dataWithJSONObject:@{@"payload":payload} options:0 error:nil];
+             NSString* extensionJSON = [[NSString alloc] initWithBytes:[extensionPayload bytes] length:[extensionPayload length] encoding:NSUTF8StringEncoding];
+             
+             
+             NSString *str = [NSString stringWithFormat:@"extensionData(%@)",extensionJSON];
+             
+             [self.webview stringByEvaluatingJavaScriptFromString:str];
+         }
+    }];
 }
-
 
 - (void)didReceiveMemoryWarning
 {

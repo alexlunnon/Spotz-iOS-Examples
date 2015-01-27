@@ -23,5 +23,5 @@
 // This library does not follow semantic-versioning,
 // so we were not able to define version macros.
 // Please contact the author.
-// Version: 1.0.5.5.
+// Version: 1.0.5.7.
 
