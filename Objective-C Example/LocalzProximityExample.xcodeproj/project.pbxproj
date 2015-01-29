@@ -21,6 +21,7 @@
 		09B7A6F21997DD1E00668DE9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09B7A6D41997DD1E00668DE9 /* UIKit.framework */; };
 		09B7A6FA1997DD1E00668DE9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 09B7A6F81997DD1E00668DE9 /* InfoPlist.strings */; };
 		09B7A6FC1997DD1E00668DE9 /* LocalzProximityExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 09B7A6FB1997DD1E00668DE9 /* LocalzProximityExampleTests.m */; };
+		65F4CB541A7902DD00AEC838 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 65F4CB531A7902DD00AEC838 /* LaunchScreen.xib */; };
 		9DD22C85DBC94A799D9C67EB /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C0A86B85669E4014B5E6691A /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -47,7 +48,7 @@
 		09B7A6E01997DD1E00668DE9 /* LocalzAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocalzAppDelegate.m; sourceTree = "<group>"; };
 		09B7A6E31997DD1E00668DE9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		09B7A6E51997DD1E00668DE9 /* LocalzViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocalzViewController.h; sourceTree = "<group>"; };
-		09B7A6E61997DD1E00668DE9 /* LocalzViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocalzViewController.m; sourceTree = "<group>"; };
+		09B7A6E61997DD1E00668DE9 /* LocalzViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocalzViewController.m; sourceTree = "<group>"; usesTabs = 0; };
 		09B7A6E81997DD1E00668DE9 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		09B7A6EE1997DD1E00668DE9 /* LocalzProximityExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LocalzProximityExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		09B7A6EF1997DD1E00668DE9 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -56,6 +57,7 @@
 		09B7A6FB1997DD1E00668DE9 /* LocalzProximityExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocalzProximityExampleTests.m; sourceTree = "<group>"; };
 		13205F11028AA2184E23EB14 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		3A7F088E3A2F1EE893A2D38A /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		65F4CB531A7902DD00AEC838 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 		C0A86B85669E4014B5E6691A /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -124,6 +126,7 @@
 				09B7A6E21997DD1E00668DE9 /* Main.storyboard */,
 				09B7A6E51997DD1E00668DE9 /* LocalzViewController.h */,
 				09B7A6E61997DD1E00668DE9 /* LocalzViewController.m */,
+				65F4CB531A7902DD00AEC838 /* LaunchScreen.xib */,
 				09B7A6E81997DD1E00668DE9 /* Images.xcassets */,
 				09B7A6D71997DD1E00668DE9 /* Supporting Files */,
 			);
@@ -219,6 +222,7 @@
 				ORGANIZATIONNAME = "Localz Pty Ltd";
 				TargetAttributes = {
 					09B7A6CC1997DD1E00668DE9 = {
+						DevelopmentTeam = SQ4GG4SYBV;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -254,6 +258,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65F4CB541A7902DD00AEC838 /* LaunchScreen.xib in Resources */,
 				09B7A6E91997DD1E00668DE9 /* Images.xcassets in Resources */,
 				09B7A6DB1997DD1E00668DE9 /* InfoPlist.strings in Resources */,
 				09B7A6E41997DD1E00668DE9 /* Main.storyboard in Resources */,

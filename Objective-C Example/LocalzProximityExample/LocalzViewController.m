@@ -15,6 +15,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *lbBeaconDetails;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) NSDictionary *spotzData;
+@property (strong, nonatomic) NSString *currentBeaconSerial;
 
 @end
 
@@ -24,81 +25,69 @@
 {
     [super viewDidLoad];
     
-    // Do any additional setup after loading the view, typically from a nib.
+    // Start with a clean screen
+    
     [self showSpotzDetails:nil];
     [self showBeaconDetails:nil];
     
+    // Set up our Notification Observers
+    
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzInsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        self.lbStatus.text = @"Spotz rocks!";
         
-        if(note.object)
+        if (note.object)
         {
-            // the dictionary will contain a spotz object and a beacon object from inside notification
+            // Take out the Spotz object and its beacon
             NSDictionary *data = note.object;
             Spotz *spotz = data[@"spotz"];
             SpotzBeacon *beacon = data[@"beacon"];
-            NSLog(@"Show spotz details");
             
-            NSLog(@"Enter beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
-            NSLog(@"Spotz id: %@ name: %@",spotz.id,spotz.name);
-            
-            // show the spotz and beacon data
+            self.lbStatus.text = @"Spotz rocks!";
             [self showSpotzDetails:spotz];
             [self showBeaconDetails:beacon];
-        }
-        else
-        {
-            [self showSpotzDetails:nil];
-            [self showBeaconDetails:nil];
+            
+            NSLog(@"Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
         }
     }];
+    
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzOutsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         
         if(note.object)
         {
-            // the dictionary will contain a spotz object and a beacon object from outside notification
+            // Take out the Spotz object and its beacon
             NSDictionary *data = note.object;
             Spotz *spotz = data[@"spotz"];
             SpotzBeacon *beacon = data[@"beacon"];
             
-            // if we have received an outside notification from the current spot, clear the screen (if not, the screen will contain info from another spot which we want to keep there)
-            if ([self.lbBeaconDetails.text isEqualToString:[NSString stringWithFormat:@"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid]])
+            // Remove the current spot from the screen if it is the last found as well
+            if (self.currentBeaconSerial && [beacon.serial isEqualToString:self.currentBeaconSerial])
             {
                 self.lbStatus.text = @"Find me spotz yo!";
                 [self showSpotzDetails:nil];
                 [self showBeaconDetails:nil];
             }
             
-            NSLog(@"Exit beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
-            NSLog(@"Spotz id: %@ name: %@",spotz.id,spotz.name);
+            NSLog(@"Exit beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
         }
     }];
+    
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzRangingNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        // beacon details are not relevant so hide clear them
-        [self showBeaconDetails:nil];
         
         if (note.object)
         {
-            // the dictionary will contain a spotz object and its accuracy
+            // Take out the Spotz object and the distance
+            // Also available is the rssi and the CLBeacon
             NSDictionary *data = note.object;
-            
             Spotz *spotz = data[@"spotz"];
             NSNumber *acc = data[@"accuracy"];
             
-            NSLog(@"Show spotz ranging details");
-            
-            // show any spotz data
-            [self showSpotzDetails:spotz];
-            
-            // show the accuracy of the spotz
+            // Show the accuracy of the spotz
             self.lbBeaconDetails.hidden = false;
             self.lbBeaconDetails.text = [NSString stringWithFormat:@"Accuracy: %fm", acc.floatValue];
+            
+            [self showSpotzDetails:spotz];
+            
+            NSLog(@"Spotz %@ accuracy %@", spotz.name, acc);
         }
-        else
-        {
-            self.lbBeaconDetails.hidden = true;
-        }
-        
     }];
 }
 
@@ -130,11 +119,15 @@
         // show the major, minor, serial and uuid of the beacon
         self.lbBeaconDetails.hidden = false;
         self.lbBeaconDetails.text = [NSString stringWithFormat:@"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid];
+        
+        self.currentBeaconSerial = beacon.serial;
     }
     else
     {
         // hide the major, minor, serial and uuid of the beacon
         self.lbBeaconDetails.hidden = true;
+        
+        self.currentBeaconSerial = nil;
     }
 }
 
@@ -143,7 +136,7 @@
 
 - (IBAction)btnRecheckTapped:(id)sender
 {
-    [SpotzSDK checkSpotz];
+    [SpotzSDK forceCheckSpotz];
 }
 
 

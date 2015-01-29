@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="zgH-Fi-Bad">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14C68m" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="zgH-Fi-Bad">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -95,7 +95,7 @@
                                 </variation>
                             </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="G3L-Yx-D4R">
-                                <rect key="frame" x="-4" y="208" width="608" height="200"/>
+                                <rect key="frame" x="0.0" y="208" width="600" height="200"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="1FP-Ps-aLK"/>
@@ -141,10 +141,11 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="B6M-Qs-lGC" firstAttribute="top" secondItem="G3L-Yx-D4R" secondAttribute="bottom" priority="250" constant="23" id="6X7-4i-TYk"/>
+                            <constraint firstItem="G3L-Yx-D4R" firstAttribute="leading" secondItem="4nR-9B-hq3" secondAttribute="leading" id="2re-Kf-Jka"/>
+                            <constraint firstItem="B6M-Qs-lGC" firstAttribute="top" secondItem="G3L-Yx-D4R" secondAttribute="bottom" constant="23" id="6X7-4i-TYk"/>
                             <constraint firstAttribute="centerX" secondItem="CHU-ss-6jy" secondAttribute="centerX" id="AnA-N2-S0x"/>
                             <constraint firstAttribute="trailing" secondItem="ZCF-85-SYq" secondAttribute="trailing" constant="16" id="BkQ-XS-Bnu"/>
-                            <constraint firstItem="MSg-cM-4T2" firstAttribute="top" secondItem="B6M-Qs-lGC" secondAttribute="bottom" priority="250" constant="20" id="EWV-45-nLe"/>
+                            <constraint firstItem="MSg-cM-4T2" firstAttribute="top" secondItem="B6M-Qs-lGC" secondAttribute="bottom" constant="20" id="EWV-45-nLe"/>
                             <constraint firstItem="G3L-Yx-D4R" firstAttribute="top" secondItem="ZCF-85-SYq" secondAttribute="bottom" constant="14" id="FI0-eW-PEu"/>
                             <constraint firstItem="rM9-FF-1d1" firstAttribute="top" relation="lessThanOrEqual" secondItem="mgR-mR-Rb1" secondAttribute="bottom" constant="49" id="I6S-sW-mFp"/>
                             <constraint firstItem="MSg-cM-4T2" firstAttribute="top" relation="greaterThanOrEqual" secondItem="B6M-Qs-lGC" secondAttribute="bottom" constant="20" id="J9J-i4-7KL"/>
@@ -153,13 +154,14 @@
                             <constraint firstItem="ZCF-85-SYq" firstAttribute="leading" secondItem="4nR-9B-hq3" secondAttribute="leading" constant="16" id="R2d-bl-yCd"/>
                             <constraint firstAttribute="trailingMargin" secondItem="G3L-Yx-D4R" secondAttribute="trailing" constant="-20" id="TvY-hB-6Lz"/>
                             <constraint firstAttribute="centerX" secondItem="mgR-mR-Rb1" secondAttribute="centerX" id="UHO-TQ-7gX"/>
+                            <constraint firstAttribute="trailing" secondItem="G3L-Yx-D4R" secondAttribute="trailing" id="Y1o-XL-irI"/>
                             <constraint firstItem="mgR-mR-Rb1" firstAttribute="top" secondItem="MSg-cM-4T2" secondAttribute="bottom" constant="8" id="YHI-y4-gmR"/>
                             <constraint firstItem="CHU-ss-6jy" firstAttribute="leading" secondItem="4nR-9B-hq3" secondAttribute="leading" constant="16" id="a9B-LQ-Cck"/>
                             <constraint firstAttribute="centerX" secondItem="G3L-Yx-D4R" secondAttribute="centerX" id="aYL-eh-L1j"/>
                             <constraint firstAttribute="centerX" secondItem="B6M-Qs-lGC" secondAttribute="centerX" id="bjB-tI-J48"/>
                             <constraint firstAttribute="trailing" secondItem="CHU-ss-6jy" secondAttribute="trailing" constant="16" id="bvq-jx-dz6"/>
                             <constraint firstItem="B6M-Qs-lGC" firstAttribute="top" relation="greaterThanOrEqual" secondItem="G3L-Yx-D4R" secondAttribute="bottom" constant="5" id="c3p-dj-GXl"/>
-                            <constraint firstItem="rM9-FF-1d1" firstAttribute="top" secondItem="mgR-mR-Rb1" secondAttribute="bottom" priority="250" constant="25" id="eHl-ew-nX0"/>
+                            <constraint firstItem="rM9-FF-1d1" firstAttribute="top" secondItem="mgR-mR-Rb1" secondAttribute="bottom" constant="25" id="eHl-ew-nX0"/>
                             <constraint firstAttribute="centerX" secondItem="dDb-S4-Ejh" secondAttribute="centerX" id="fc8-mX-9bp"/>
                             <constraint firstItem="B6M-Qs-lGC" firstAttribute="top" relation="lessThanOrEqual" secondItem="G3L-Yx-D4R" secondAttribute="bottom" constant="38" id="ht2-Wz-A3t"/>
                             <constraint firstItem="dDb-S4-Ejh" firstAttribute="top" secondItem="95z-ap-WLf" secondAttribute="bottom" constant="41" id="lOm-rz-QrB"/>
@@ -168,7 +170,14 @@
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
+                                <exclude reference="AnA-N2-S0x"/>
+                                <exclude reference="QKD-tH-PSj"/>
+                                <exclude reference="TvY-hB-6Lz"/>
                                 <exclude reference="aYL-eh-L1j"/>
+                                <exclude reference="c3p-dj-GXl"/>
+                                <exclude reference="ht2-Wz-A3t"/>
+                                <exclude reference="J9J-i4-7KL"/>
+                                <exclude reference="I6S-sW-mFp"/>
                             </mask>
                         </variation>
                     </view>

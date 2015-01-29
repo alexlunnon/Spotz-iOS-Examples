@@ -59,6 +59,12 @@ extern NSString * const SpotzRangingNotification;
 + (void) initializeWithAppId:(NSString *)appId clientKey:(NSString *)clientKey delegate:(id)delegate withOptions:(id)options;
 
 /**
+ *  Set identity and attributes that identify this device/user. This is optional. All information set will be
+ *  sent to the extensions set in Spotz Platform. Please refer to Spotz Documentation for specific extensions attributes
+ */
++ (void) identity:(NSString *)identityId attributes:(NSDictionary *)attributes;
+
+/**
  * Retry initializing spotz and downloads the spotz definitions if the initial initialization threw an error. It will call the SpotzSDKDelegate methods as defined by initializeWithAppId.
  * Please run initializeWithAppId prior to running this method
  */
@@ -124,6 +130,12 @@ extern NSString * const SpotzRangingNotification;
  *  Check if Spotz API is reachable. Please ensure startReachableCheck is run before checking this value.
  */
 + (BOOL) isReachable;
+
+/**
+ *  Forces the SDK to act as if there is no internet connection and use the localy stored spotz instead.
+ *  NOTE: calling reset will destroy any cache data used for offline usage
+ */
++ (void) setOfflineModeForced:(BOOL)offline;
 
 /**
  * Start ranging service for beacons that are marked for ranging
