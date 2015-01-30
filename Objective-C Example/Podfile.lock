@@ -1,24 +1,25 @@
 PODS:
-  - Realm (0.86.3):
-    - Realm/Headers (= 0.86.3)
-  - Realm/Headers (0.86.3)
-  - SpotzSDK (1.0.5.6):
-    - Realm (= 0.86.3)
+  - Realm (0.87.4):
+    - Realm/Headers (= 0.87.4)
+  - Realm/Headers (0.87.4)
+  - SpotzSDK (1.0.5.7):
+    - Realm (= 0.87.4)
 
 DEPENDENCIES:
-  - SpotzSDK (from `https://github.com/localz/Spotz-iOS-SDK.git`)
+  - SpotzSDK (from `https://github.com/localz/Spotz-iOS-SDK.git`, branch `Spotz-2.0`)
 
 EXTERNAL SOURCES:
   SpotzSDK:
+    :branch: Spotz-2.0
     :git: https://github.com/localz/Spotz-iOS-SDK.git
 
 CHECKOUT OPTIONS:
   SpotzSDK:
-    :commit: 79a7463fd3b2575771826f4b541c87d6573fd96a
+    :commit: 83f92d434bc7b142df9cad147a1dc664137e0355
     :git: https://github.com/localz/Spotz-iOS-SDK.git
 
 SPEC CHECKSUMS:
-  Realm: 1f53f3b9b097679c94c927a9df8bcb9aac779554
-  SpotzSDK: 1e19eb83b1ea92fac5b2717e022d57315ec386d5
+  Realm: 17d0d9c94b38d15223fa3e806ead0e0562765e46
+  SpotzSDK: 00ffe1175d41f23f108ef052468199c12874c762
 
 COCOAPODS: 0.35.0

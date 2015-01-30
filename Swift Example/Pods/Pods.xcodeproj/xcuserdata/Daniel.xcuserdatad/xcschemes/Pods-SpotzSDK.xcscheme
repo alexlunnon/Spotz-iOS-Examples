@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3EB0D68C6D31A70BB27AED03"
+               BlueprintIdentifier = "8ECB304C421398D23D3F1070"
                BuildableName = "libPods-SpotzSDK.a"
                BlueprintName = "Pods-SpotzSDK"
                ReferencedContainer = "container:Pods.xcodeproj">

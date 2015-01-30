@@ -12,10 +12,10 @@
 @interface LocalzViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UILabel *lbStatus;
 @property (weak, nonatomic) IBOutlet UILabel *lbSpotzName;
-@property (weak, nonatomic) IBOutlet UILabel *lbBeaconDetails;
+@property (weak, nonatomic) IBOutlet UILabel *lbDetails;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) NSDictionary *spotzData;
-@property (strong, nonatomic) NSString *currentBeaconSerial;
+@property (strong, nonatomic) NSString *currentRegionId;
 
 @end
 
@@ -39,13 +39,25 @@
             // Take out the Spotz object and its beacon
             NSDictionary *data = note.object;
             Spotz *spotz = data[@"spotz"];
-            SpotzBeacon *beacon = data[@"beacon"];
+            
+            if (data[@"beacon"])
+            {
+                SpotzBeacon *beacon = data[@"beacon"];
+                [self showBeaconDetails:beacon];
+                
+                NSLog(@"Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
+            }
+            
+            if (data[@"geofence"])
+            {
+                SpotzGeofence *geofence = data[@"geofence"];
+                [self showGeofenceDetails:geofence];
+                
+                NSLog(@"Entry geofence (%@) detected with latitude: %f longitude %f",spotz.name,geofence.latitude,geofence.longitude);
+            }
             
             self.lbStatus.text = @"Spotz rocks!";
             [self showSpotzDetails:spotz];
-            [self showBeaconDetails:beacon];
-            
-            NSLog(@"Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
         }
     }];
     
@@ -56,17 +68,33 @@
             // Take out the Spotz object and its beacon
             NSDictionary *data = note.object;
             Spotz *spotz = data[@"spotz"];
-            SpotzBeacon *beacon = data[@"beacon"];
             
             // Remove the current spot from the screen if it is the last found as well
-            if (self.currentBeaconSerial && [beacon.serial isEqualToString:self.currentBeaconSerial])
+            if (data[@"beacon"])
             {
-                self.lbStatus.text = @"Find me spotz yo!";
-                [self showSpotzDetails:nil];
-                [self showBeaconDetails:nil];
+                SpotzBeacon *beacon = data[@"beacon"];
+                if (self.currentRegionId && [beacon.serial isEqualToString:self.currentRegionId])
+                {
+                    self.lbStatus.text = @"Find me spotz yo!";
+                    [self showSpotzDetails:nil];
+                    [self showBeaconDetails:nil];
+                }
+                
+                NSLog(@"Exit beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
             }
             
-            NSLog(@"Exit beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
+            if (data[@"geofence"])
+            {
+                SpotzGeofence *geofence = data[@"geofence"];
+                if (self.currentRegionId && [geofence.spotzId isEqualToString:self.currentRegionId])
+                {
+                    self.lbStatus.text = @"Find me spotz yo!";
+                    [self showSpotzDetails:nil];
+                    [self showGeofenceDetails:nil];
+                }
+                
+                NSLog(@"Exit geofence (%@) detected with latitude: %f longitude %f",spotz.name,geofence.latitude,geofence.longitude);
+            }
         }
     }];
     
@@ -81,12 +109,20 @@
             NSNumber *acc = data[@"accuracy"];
             
             // Show the accuracy of the spotz
-            self.lbBeaconDetails.hidden = false;
-            self.lbBeaconDetails.text = [NSString stringWithFormat:@"Accuracy: %fm", acc.floatValue];
+            self.lbDetails.hidden = false;
+            self.lbDetails.text = [NSString stringWithFormat:@"Accuracy: %fm", acc.floatValue];
             
             [self showSpotzDetails:spotz];
             
             NSLog(@"Spotz %@ accuracy %@", spotz.name, acc);
+        }
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:SpotzExtensionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        
+        if (note.object)
+        {
+            NSLog(@"Extension data: %@", note.object);
         }
     }];
 }
@@ -117,20 +153,38 @@
     if (beacon)
     {
         // show the major, minor, serial and uuid of the beacon
-        self.lbBeaconDetails.hidden = false;
-        self.lbBeaconDetails.text = [NSString stringWithFormat:@"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid];
+        self.lbDetails.hidden = false;
+        self.lbDetails.text = [NSString stringWithFormat:@"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid];
         
-        self.currentBeaconSerial = beacon.serial;
+        self.currentRegionId = beacon.serial;
     }
     else
     {
         // hide the major, minor, serial and uuid of the beacon
-        self.lbBeaconDetails.hidden = true;
+        self.lbDetails.hidden = true;
         
-        self.currentBeaconSerial = nil;
+        self.currentRegionId = nil;
     }
 }
 
+- (void) showGeofenceDetails:(SpotzGeofence *)geofence
+{
+    if (geofence)
+    {
+        // show the latitude and longitude of the geofence
+        self.lbDetails.hidden = false;
+        self.lbDetails.text = [NSString stringWithFormat:@"latitude: %f longitude: %f\nradius: %f", geofence.latitude, geofence.longitude, geofence.radius];
+        
+        self.currentRegionId = geofence.spotzId;
+    }
+    else
+    {
+        // hide the latitude and longitude of the geofence
+        self.lbDetails.hidden = true;
+        
+        self.currentRegionId = nil;
+    }
+}
 
 #pragma mark - Button actions
 

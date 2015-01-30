@@ -9,12 +9,12 @@
 #import <Foundation/Foundation.h>
 
 @interface SpotzBeacon : NSObject
-@property (nonatomic,strong)  NSString *spotzId;
-@property (nonatomic,strong)  NSString *uuid;
+@property (nonatomic,strong) NSString *spotzId;
+@property (nonatomic,strong) NSString *uuid;
 @property (nonatomic) int major;
 @property (nonatomic) int minor;
 @property (nonatomic) int radius;
-@property (nonatomic,strong)  NSString *vendor;
-@property (nonatomic,strong)  NSString *serial;
+@property (nonatomic,strong) NSString *vendor;
+@property (nonatomic,strong) NSString *serial;
 @property (nonatomic) int ranging;
 @end

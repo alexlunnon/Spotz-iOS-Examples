@@ -66,7 +66,7 @@
 
 - (void)spotzSDKPushNotificationRegistrationSuccess
 {
-    NSLog(@"SpotzSDK push notification registration successfull");
+    NSLog(@"SpotzSDK Push Notification registration successfull");
 }
 
 - (void)spotzSDKPushNotificationRegistrationFailed:(NSError *)error

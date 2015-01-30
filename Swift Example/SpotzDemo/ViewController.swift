@@ -11,10 +11,10 @@ import UIKit
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var lbStatus: UILabel!
     @IBOutlet weak var lbSpotzName: UILabel!
-    @IBOutlet weak var lbBeaconDetails: UILabel!
+    @IBOutlet weak var lbDetails: UILabel!
     @IBOutlet weak var tableView: UITableView!
     var spotzData: NSDictionary?
-    var currentBeaconSerial: String?
+    var currentRegionId: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,6 +23,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
         self.showSpotzDetails(nil)
         self.showBeaconDetails(nil)
+        self.showGeofenceDetails(nil)
         
         // Set up our Notification Observers
         
@@ -32,13 +33,22 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             {
                 // Take out the Spotz object and its beacon
                 let spotz = data["spotz"] as Spotz!
-                let beacon = data["beacon"] as SpotzBeacon!
+                
+                // Entry region will be either a geofence or a beacon
+                if let beacon = data["beacon"] as? SpotzBeacon
+                {
+                    self.showBeaconDetails(beacon)
+                    NSLog("Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
+                }
+                
+                if let geofence = data["geofence"] as? SpotzGeofence
+                {
+                    self.showGeofenceDetails(geofence)
+                    NSLog("Entry geofence (%@) detected with latitude: %f longitude: %f",spotz.name,geofence.latitude,geofence.longitude);
+                }
                 
                 self.lbStatus.text = "Spotz rocks!"
                 self.showSpotzDetails(spotz)
-                self.showBeaconDetails(beacon)
-                        
-                NSLog("Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
             }
         }
         
@@ -48,17 +58,31 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             {
                 // Take out the Spotz object and its beacon
                 let spotz = data["spotz"] as Spotz!
-                let beacon = data["beacon"] as SpotzBeacon!
-             
+                
                 // Remove the current spot from the screen if it is the last found as well
-                if (beacon.serial == self.currentBeaconSerial)
+                if let beacon = data["beacon"] as? SpotzBeacon
                 {
-                    self.lbStatus.text = "Find me spotz yo!"
-                    self.showBeaconDetails(nil)
-                    self.showSpotzDetails(nil)
+                    if (beacon.serial == self.currentRegionId)
+                    {
+                        self.lbStatus.text = "Find me spotz yo!"
+                        self.showBeaconDetails(nil)
+                        self.showSpotzDetails(nil)
+                    }
+                    
+                    NSLog("Exit beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
                 }
                 
-                NSLog("Exit beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
+                if let geofence = data["geofence"] as? SpotzGeofence
+                {
+                    if (geofence.spotzId == self.currentRegionId)
+                    {
+                        self.lbStatus.text = "Find me spotz yo!"
+                        self.showGeofenceDetails(nil)
+                        self.showSpotzDetails(nil)
+                    }
+                    
+                    NSLog("Exit geofence (%@) detected with latitude: %f longitude: %f",spotz.name,geofence.latitude,geofence.longitude);
+                } 
             }
         }
         
@@ -72,12 +96,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 let acc = data["accuracy"] as NSNumber!
                 
                 // Show the accuracy of the spotz
-                self.lbBeaconDetails.hidden = false
-                self.lbBeaconDetails.text = NSString(format: "Accuracy: %fm", acc.floatValue)
+                self.lbDetails.hidden = false
+                self.lbDetails.text = NSString(format: "Accuracy: %fm", acc.floatValue)
                 
                 self.showSpotzDetails(spotz)
                 
                 NSLog("Spotz %@ accuracy %@", spotz.name, acc);
+            }
+        }
+        
+        NSNotificationCenter.defaultCenter().addObserverForName(SpotzExtensionNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
+            
+            if let data = note.object as? NSString
+            {
+                NSLog("Extension data: %@", data)
             }
         }
     }
@@ -108,17 +140,36 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if (beacon != nil)
         {
             // show the major, minor, serial and uuid of the beacon
-            self.lbBeaconDetails.hidden = false
-            self.lbBeaconDetails.text = String(format:"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid)
+            self.lbDetails.hidden = false
+            self.lbDetails.text = String(format:"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid)
             
-            self.currentBeaconSerial = beacon.serial
+            self.currentRegionId = beacon.serial
         }
         else
         {
             // hide the major, minor, serial and uuid of the beacon
-            self.lbBeaconDetails.hidden = true
+            self.lbDetails.hidden = true
             
-            self.currentBeaconSerial = nil
+            self.currentRegionId = nil
+        }
+    }
+    
+    func showGeofenceDetails(geofence:SpotzGeofence!) {
+        
+        if (geofence != nil)
+        {
+            // show the latitude and longitude of the geofence
+            self.lbDetails.hidden = false
+            self.lbDetails.text = String(format:"latitude: %f longitude: %f\nradius: %f", geofence.latitude, geofence.longitude, geofence.radius)
+            
+            self.currentRegionId = geofence.spotzId
+        }
+        else
+        {
+            // hide the latitude and longitude of the geofence
+            self.lbDetails.hidden = true
+            
+            self.currentRegionId = nil
         }
     }
     

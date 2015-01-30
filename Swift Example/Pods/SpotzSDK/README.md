@@ -48,12 +48,12 @@ NSLocationAlwaysUsageDescription
 
 Swift
 ```
-SpotzSDK.initializeWithAppId("<Enter your app ID here>", clientKey: "<Enter your client key here>", delegate: self, withOptions:nil)
+    SpotzSDK.initializeWithAppId("<Enter your app ID here>", clientKey: "<Enter your client key here>", delegate: self, withOptions:nil)
 ```
 
 Objective-C
 ```
-[SpotzSDK initializeWithAppId:@"<Enter your app ID here>" clientKey:@"<Enter your client key here>" delegate:self withOptions:nil];
+    [SpotzSDK initializeWithAppId:@"<Enter your app ID here>" clientKey:@"<Enter your client key here>" delegate:self withOptions:nil];
 ```
 
 When initialization is successful, it will call the spotzSDKInitSuccessfull delegate
@@ -68,6 +68,7 @@ func spotzSDKInitSuccessfull() {
 }
 
 func spotzSDKInitFailed(error: NSError!) {
+    // Spotz failed to initialise
     NSLog("Error %@", error)
 }
 ```
@@ -75,12 +76,15 @@ func spotzSDKInitFailed(error: NSError!) {
 Objective-C
 ```
 #pragma mark - SpotzSDK delegates
-- (void)spotzSDKInitSuccessfull {
+- (void)spotzSDKInitSuccessfull
+{
     NSLog(@"SpotzSDK initialized successfully");
     [SpotzSDK startServices];
 }
 
-- (void)spotzSDKInitFailed:(NSError *)error {
+- (void)spotzSDKInitFailed:(NSError *)error
+{
+    // Spotz failed to initialise
     NSLog(@"Error %@",error);
 }
 ```
@@ -91,74 +95,65 @@ You can place this listener where it makes sense
 
 Swift
 ```
-// Set up to receive notifications from your spots
+// set up to recieve notifications from a spot
 NSNotificationCenter.defaultCenter().addObserverForName(SpotzInsideNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
-    if let data:NSDictionary = note.object as? NSDictionary
-    {
-        if let spotz: Spotz = data["spotz"] as? Spotz
-        {
-            NSLog("Spotz id: %@ name: %@",spotz.id,spotz.name);
-            // Do something with this Spotz data
-        }
+  if note.object != nil {
+    var data: NSDictionary! = note.object as NSDictionary
+
+    var spotz = data["spotz"] as Spotz!
+    var beacon = data["beacon"] as SpotzBeacon!
         
-        if let beacon: SpotzBeacon = data["beacon"] as? SpotzBeacon
-        {
-            NSLog("Enter beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
-            // Do something with this beacon data
-        }
-    }
+    NSLog("Beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor)
+    NSLog("Show spotz details")
+    // Do something amazing here
+  }
 }
 
 NSNotificationCenter.defaultCenter().addObserverForName(SpotzRangingNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
-    if let data: NSDictionary = note.object as? NSDictionary
-    {
-        if let spotz = data["spotz"] as? Spotz
-        {
-            NSLog("Spotz id: %@ name: %@",spotz.id,spotz.name);
-            // Do something with this Spotz data
-        }
-        if let acc = data["accuracy"] as? NSNumber
-        {
-            NSLog("Accuracy %@", acc)
-            // Show the accuracy of the spotz
-        }
-        
-        NSLog("Show spotz ranging details")
-    }
+  if note.object != nil {
+    var data: NSDictionary! = note.object as NSDictionary
+                
+    var spotz = data["spotz"] as Spotz!
+    var acc = data["accuracy"] as NSNumber!
+    var clBeacon = data["CLBeacon"] as CLBeacon?
+                
+    NSLog("Show spotz ranging details")
+    // Do something else amazing here
+
+  }
 }
 ```
 
 Objective-C
 ```
 [[NSNotificationCenter defaultCenter] addObserverForName:SpotzInsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-  	if (note.object)
-  	{
-  	    NSDictionary *data = note.object;
+	if (note.object)
+	{
+	    NSDictionary *data = note.object;
 
-        Spotz *spotz = data[@"spotz"];
-        SpotzBeacon *beacon = data[@"beacon"];
+      	    Spotz *spotz = data[@"spotz"];
+      	    SpotzBeacon *beacon = data[@"beacon"];
+       
+       	    NSLog(@"Beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
+       	    NSLog(@"Show spotz details");
 
-  	    NSLog(@"Beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
-  	    NSLog(@"Show spotz details");
-
-  	    // Do something with this Spotz and beacon data
-    }
+       	    // Do something amazing here
+       	}
 }];
 
 [[NSNotificationCenter defaultCenter] addObserverForName:SpotzRangingNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-    if (note.object)
-    {
-        NSDictionary *data = note.object;
+        if (note.object)
+	{
+	    NSDictionary *data = note.object;
         
-        Spotz *spotz = data[@"spotz"];
-        NSNumber *acc = data[@"accuracy"];
+            Spotz *spotz = data[@"spotz"];
+            NSNumber *acc = data[@"accuracy"];
+	    CLBeacon *clBeacon = data[@"CLBeacon"];
         
-        NSLog(@"Spotz id: %@ name: %@",spotz.id,spotz.name);
-        NSLog(@"Accuracy %@", acc);
-        NSLog(@"Show spotz ranging details");
+            NSLog(@"Show spotz ranging details");
 	
-        // Do something with this Spotz and accuracy data
-    }
+	    // Do something else amazing here
+	}
 }];
 ```
 
@@ -169,7 +164,6 @@ You can listen for the following notifications:
 - SpotzRangingNotification
 
 When available, both Spotz and SpotzBeacon objects will be returned in the note.object's NSDictionary in both SpotzInsideNotification and SpotzOutsideNotification.
-CLBeacon and rssi may be returned in SpotzRangingNotification.
 When/if using CLBeacon, remember to @import CoreLocation at the top of your file.
 
 Contribution

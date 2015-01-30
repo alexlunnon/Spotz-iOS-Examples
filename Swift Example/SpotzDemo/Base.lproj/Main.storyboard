@@ -182,7 +182,7 @@
                         </variation>
                     </view>
                     <connections>
-                        <outlet property="lbBeaconDetails" destination="ZCF-85-SYq" id="p6H-4U-WLe"/>
+                        <outlet property="lbDetails" destination="ZCF-85-SYq" id="Vb9-An-DaO"/>
                         <outlet property="lbSpotzName" destination="CHU-ss-6jy" id="IOH-oC-PYh"/>
                         <outlet property="lbStatus" destination="dDb-S4-Ejh" id="6IR-k9-afj"/>
                         <outlet property="tableView" destination="G3L-Yx-D4R" id="pTi-Cj-IBh"/>

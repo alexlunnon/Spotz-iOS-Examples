@@ -7,8 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "Spotz.h"
 #import "SpotzBeacon.h"
+#import "SpotzGeofence.h"
 
 typedef enum {
     SpotzOptionCustomLocationPermissionPrompt = 1 << 0,
@@ -37,6 +39,12 @@ extern NSString * const SpotzOutsideNotification;
  *  Notification when ranging information available
  */
 extern NSString * const SpotzRangingNotification;
+
+/**
+ *  Notification when ranging information available
+ */
+extern NSString * const SpotzExtensionNotification;
+
 
 @protocol SpotzSDKDelegate <NSObject>
 @optional
@@ -71,12 +79,26 @@ extern NSString * const SpotzRangingNotification;
 + (void) reinitialize;
 
 /**
- *  Register push notification device token for Push Notification
+ *  Register push notification device token for Push Notifications
  *
  *  @param deviceToken deviceToken
- *  @param completion  completion
  */
-+ (void) registerPushDeviceToken:(NSData *)deviceToken;
++ (void) registeredForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+
+/**
+ *  Validates the failed push notification error and forwards this to the spotzSDKPushNotificationRegistrationFailed method
+ *
+ *  @param error error returned from didFailToRegisterForRemoteNotificationsWithError
+ */
++ (void) failedToRegisterForRemoteNotificationsWithError:(NSError *)error;
+
+/**
+ *  Unpacks the notification message and posts it inside a NSNotification - SpotzExtensionNotification
+ *
+ *  @param userInfo dictionary of the push notification
+ *  @param state application state of the current device
+ */
++ (void) receivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state;
 
 /**
  *  This will check status of spotz and re-trigger spotz notifications if any
@@ -133,15 +155,9 @@ extern NSString * const SpotzRangingNotification;
 
 /**
  *  Forces the SDK to act as if there is no internet connection and use the localy stored spotz instead.
- *  NOTE: calling reset will destroy any cache data used for offline usage
+ *  NOTE: calling reset will destroy any cache data used for offline usage data
  */
-+ (void) setOfflineModeForced:(BOOL)offline;
-
-/**
- * Start ranging service for beacons that are marked for ranging
- * When beacon is found and matched the range specified in the
- */
-//+ (void) startRangingSpotzId:(NSString *)spotzId;
++ (void) forceOfflineMode:(BOOL)offline;
 
 @property (nonatomic,assign) id<SpotzSDKDelegate> delegate;
 
