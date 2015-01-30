@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../spotz-sdk-ios/SpotzSDK/SpotzSDK.m"
-            timestampString = "444031040.7591"
+            timestampString = "444270614.814548"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1631"
-            endingLineNumber = "1631"
+            startingLineNumber = "1592"
+            endingLineNumber = "1592"
             landmarkName = "-locationManager:didRangeBeacons:inRegion:"
             landmarkType = "5">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../spotz-sdk-ios/SpotzSDK/SpotzSDK.m"
-            timestampString = "444017106.239376"
+            timestampString = "444270614.814548"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "546"
-            endingLineNumber = "546"
+            startingLineNumber = "532"
+            endingLineNumber = "532"
             landmarkName = "+retrieveSpotzWithUUID:major:minor:completion:"
             landmarkType = "5">
          </BreakpointContent>

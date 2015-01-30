@@ -37,12 +37,12 @@ class ViewController: UIViewController {
                         var spotzNameJSON:NSString = NSString(bytes: spotzNameData.bytes, length: spotzNameData.length, encoding: NSUTF8StringEncoding)!
                         
                         // Spotz Beacon to JSON
-                        var spotzBeacon = ["uuid":beacon.uuid,"major":NSNumber(int: beacon.major),"minor":NSNumber(int: beacon.minor)]
+                        var spotzBeacon = ["uuid":beacon.uuid,"major":NSNumber(int: beacon.major),"minor":NSNumber(int: beacon.minor),"serial":beacon.serial]
                         var spotzBeaconData:NSData = NSJSONSerialization.dataWithJSONObject(spotzBeacon, options: nil, error: nil)!
                         var spotzBeaconJSON:NSString = NSString(bytes: spotzBeaconData.bytes, length: spotzBeaconData.length, encoding: NSUTF8StringEncoding)!
                         
-                        var str:NSString = NSString(format: "displayData(%@,%@,%@)", spotzNameJSON, spotzBeaconJSON, spotzDataJSON)
-                        
+                        var str:NSString = NSString(format: "monitorData(%@,%@,%@)", spotzNameJSON, spotzBeaconJSON, spotzDataJSON)
+
                         self.webview.stringByEvaluatingJavaScriptFromString(str)
                     }
                 }
@@ -64,13 +64,12 @@ class ViewController: UIViewController {
                         var spotzDataJSON:NSString = NSString(bytes: spotzData.bytes, length: spotzData.length, encoding: NSUTF8StringEncoding)!
                         
                         // Spotz Name to JSON
-                        NSLog("name: %@", spotz.name)
                         var spotzName:NSDictionary = ["id":spotz.id,"name":spotz.name]
                         var spotzNameData:NSData = NSJSONSerialization.dataWithJSONObject(spotzName, options: nil, error: nil)!
                         var spotzNameJSON:NSString = NSString(bytes: spotzNameData.bytes, length: spotzNameData.length, encoding: NSUTF8StringEncoding)!
                         
                         // Spotz Beacon to JSON
-                        var spotzBeacon = ["uuid":beacon.uuid,"major":NSNumber(int: beacon.major),"minor":NSNumber(int: beacon.minor)]
+                        var spotzBeacon = ["uuid":beacon.uuid,"major":NSNumber(int: beacon.major),"minor":NSNumber(int: beacon.minor),"serial":beacon.serial]
                         var spotzBeaconData:NSData = NSJSONSerialization.dataWithJSONObject(spotzBeacon, options: nil, error: nil)!
                         var spotzBeaconJSON:NSString = NSString(bytes: spotzBeaconData.bytes, length: spotzBeaconData.length, encoding: NSUTF8StringEncoding)!
                         
@@ -97,7 +96,6 @@ class ViewController: UIViewController {
                         var spotzDataJSON:NSString = NSString(bytes: spotzData.bytes, length: spotzData.length, encoding: NSUTF8StringEncoding)!
                         
                         // Spotz Name to JSON
-                        NSLog("name: %@", spotz.name)
                         var spotzName:NSDictionary = ["id":spotz.id,"name":spotz.name]
                         var spotzNameData:NSData = NSJSONSerialization.dataWithJSONObject(spotzName, options: nil, error: nil)!
                         var spotzNameJSON:NSString = NSString(bytes: spotzNameData.bytes, length: spotzNameData.length, encoding: NSUTF8StringEncoding)!
@@ -115,20 +113,20 @@ class ViewController: UIViewController {
             }
         }
         
-        NSNotificationCenter.defaultCenter().addObserverForName(SpotzExtensionNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
-            NSLog("Spotz Extension")
-            
-            if let payload: NSString = note.object as? NSString
-            {
-                // Payload String to JSON
-                var extensionData:NSData = NSJSONSerialization.dataWithJSONObject(["payload":payload], options: nil, error: nil)!
-                var extensionJSON:NSString = NSString(bytes: extensionData.bytes, length: extensionData.length, encoding: NSUTF8StringEncoding)!
-                
-                var str:NSString = NSString(format: "extensionData(%@)", extensionJSON)
-                        
-                self.webview.stringByEvaluatingJavaScriptFromString(str)
-            }
-        }
+//        NSNotificationCenter.defaultCenter().addObserverForName(SpotzExtensionNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
+//            NSLog("Spotz Extension")
+//            
+//            if let payload: NSString = note.object as? NSString
+//            {
+//                // Payload String to JSON
+//                var extensionData:NSData = NSJSONSerialization.dataWithJSONObject(["payload":payload], options: nil, error: nil)!
+//                var extensionJSON:NSString = NSString(bytes: extensionData.bytes, length: extensionData.length, encoding: NSUTF8StringEncoding)!
+//                
+//                var str:NSString = NSString(format: "extensionData(%@)", extensionJSON)
+//                        
+//                self.webview.stringByEvaluatingJavaScriptFromString(str)
+//            }
+//        }
         
     }
     

@@ -4,3 +4,4 @@ xcodeproj 'LocalzProximityExample'
 
 #pod 'SpotzSDK', :path => '../../Spotz-iOS-SDK'
 pod 'SpotzSDK',:git => 'https://github.com/localz/Spotz-iOS-SDK.git', 'branch' => 'Spotz-2.0'
+#pod 'SpotzSDK',:git => 'https://github.com/localz/Spotz-iOS-SDK.git'

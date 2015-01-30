@@ -45,12 +45,12 @@
             NSString* spotzNameJSON = [[NSString alloc] initWithBytes:[spotzNameData bytes] length:[spotzNameData length] encoding:NSUTF8StringEncoding];
             
             // Spotz Beacon to JSON
-            NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor]};
+            NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor],@"serial":beacon.serial};
             NSData* spotzBeaconData = [NSJSONSerialization dataWithJSONObject:spotzBeacon options:0 error:nil];
             NSString* spotzBeaconJSON = [[NSString alloc] initWithBytes:[spotzBeaconData bytes] length:[spotzBeaconData length] encoding:NSUTF8StringEncoding];
             
             
-            NSString *str = [NSString stringWithFormat:@"displayData(%@,%@,%@)",spotzNameJSON,spotzBeaconJSON,spotzDataJSON];
+            NSString *str = [NSString stringWithFormat:@"monitorData(%@,%@,%@)",spotzNameJSON,spotzBeaconJSON,spotzDataJSON];
             
             [self.webview stringByEvaluatingJavaScriptFromString:str];
         }
@@ -75,13 +75,13 @@
             NSString* spotzNameJSON = [[NSString alloc] initWithBytes:[spotzNameData bytes] length:[spotzNameData length] encoding:NSUTF8StringEncoding];
             
             // Spotz Beacon to JSON
-            NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor]};
+            NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor],@"serial":beacon.serial};
             NSData* spotzBeaconData = [NSJSONSerialization dataWithJSONObject:spotzBeacon options:0 error:nil];
             NSString* spotzBeaconJSON = [[NSString alloc] initWithBytes:[spotzBeaconData bytes] length:[spotzBeaconData length] encoding:NSUTF8StringEncoding];
             
             
             NSString *str = [NSString stringWithFormat:@"hideData(%@,%@,%@)",spotzNameJSON,spotzBeaconJSON,spotzDataJSON];
-            
+
             [self.webview stringByEvaluatingJavaScriptFromString:str];
         }
     }];
@@ -111,27 +111,27 @@
             
             
             NSString *str = [NSString stringWithFormat:@"rangeData(%@,%@,%@)",spotzNameJSON,beaconAccJSON,spotzDataJSON];
-            
+            NSLog(@"str: %@", str);
             [self.webview stringByEvaluatingJavaScriptFromString:str];
         }
         
     }];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:SpotzExtensionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-         NSLog(@"Spotz Extension");
-         
-         if (note.object)
-         {
-             // Payload String to JSON
-             NSData* extensionData = [NSJSONSerialization dataWithJSONObject:@{@"payload":note.object} options:0 error:nil];
-             NSString* extensionJSON = [[NSString alloc] initWithBytes:[extensionData bytes] length:[extensionData length] encoding:NSUTF8StringEncoding];
-             
-             
-             NSString *str = [NSString stringWithFormat:@"extensionData(%@)",extensionJSON];
-             
-             [self.webview stringByEvaluatingJavaScriptFromString:str];
-         }
-    }];
+//    [[NSNotificationCenter defaultCenter] addObserverForName:SpotzExtensionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+//         NSLog(@"Spotz Extension");
+//         
+//         if (note.object)
+//         {
+//             // Payload String to JSON
+//             NSData* extensionData = [NSJSONSerialization dataWithJSONObject:@{@"payload":note.object} options:0 error:nil];
+//             NSString* extensionJSON = [[NSString alloc] initWithBytes:[extensionData bytes] length:[extensionData length] encoding:NSUTF8StringEncoding];
+//             
+//             
+//             NSString *str = [NSString stringWithFormat:@"extensionData(%@)",extensionJSON];
+//             
+//             [self.webview stringByEvaluatingJavaScriptFromString:str];
+//         }
+//    }];
 }
 
 

@@ -156,7 +156,7 @@ extern NSString * const SpotzExtensionNotification;
  *  Forces the SDK to act as if there is no internet connection and use the localy stored spotz instead.
  *  NOTE: calling reset will destroy any cache data used for offline usage data
  */
-+ (void) setOfflineForced:(BOOL)offline;
++ (void) forceOfflineMode:(BOOL)offline;
 
 @property (nonatomic,assign) id<SpotzSDKDelegate> delegate;
 

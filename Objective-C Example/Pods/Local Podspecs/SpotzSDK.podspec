@@ -12,5 +12,5 @@ Pod::Spec.new do |s|
 	s.preserve_paths = 'SpotzSDK.framework'
 	s.vendored_frameworks = 'SpotzSDK.framework'
 	s.frameworks = 'CoreLocation'
-	s.dependency 'Realm', '0.86.3'
+	s.dependency 'Realm', '0.87.4'
 end

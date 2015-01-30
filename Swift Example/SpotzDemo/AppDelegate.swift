@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SpotzSDKDelegate {
         // Override point for customization after application launch.
         
         // your app and ios id from your app on the spotz website
-        SpotzSDK.initializeWithAppId("HQHwEeGOhmhnFpkA4nAWuDw3yf9Rp3duPFkfhCFf", clientKey: "GtQmbD8yNhOy9ycXAXcHjmHPi5cjnlfALabdK4ek", delegate: self, withOptions:["dev_mode":"yup"])
+        SpotzSDK.initializeWithAppId("<Insert Application ID here>", clientKey: "<Insert iOS Client ID here>", delegate: self, withOptions:nil)
         
         return true
     }
