@@ -10,4 +10,6 @@
 
 @interface LocalzViewController : UIViewController
 
+//+ (LocalzViewController *)viewController;
+
 @end

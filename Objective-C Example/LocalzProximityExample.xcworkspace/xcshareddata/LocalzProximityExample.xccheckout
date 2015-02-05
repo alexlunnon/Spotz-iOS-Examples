@@ -14,6 +14,8 @@
 		<string>https://github.com/localz/Spotz-iOS-Examples.git</string>
 		<key>A2C7D1B73F022373D15A9616D3D5A98B8E7C058F</key>
 		<string>https://github.com/localz/spotz-sdk-ios.git</string>
+		<key>D3AFEA52A81EAD42C3037F0D51C8C1E4D6BAB9F6</key>
+		<string>https://github.com/localz/Spotz-iOS-SDK.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Objective-C Example/LocalzProximityExample.xcworkspace</string>
@@ -23,6 +25,8 @@
 		<string>../..</string>
 		<key>A2C7D1B73F022373D15A9616D3D5A98B8E7C058F</key>
 		<string>../../../spotz-sdk-ios</string>
+		<key>D3AFEA52A81EAD42C3037F0D51C8C1E4D6BAB9F6</key>
+		<string>../../../Spotz-iOS-SDK</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/localz/Spotz-iOS-Examples.git</string>
@@ -39,6 +43,14 @@
 			<string>0E740DD126E9F141BA6555A34042CAE8B823B1B8</string>
 			<key>IDESourceControlWCCName</key>
 			<string>Spotz-iOS-Examples</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>D3AFEA52A81EAD42C3037F0D51C8C1E4D6BAB9F6</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Spotz-iOS-SDK</string>
 		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>

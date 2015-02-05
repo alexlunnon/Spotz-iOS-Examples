@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import "Spotz.h"
 #import "SpotzBeacon.h"
+#import "SpotzGeofence.h"
 
 typedef enum {
     SpotzOptionCustomLocationPermissionPrompt = 1 << 0,

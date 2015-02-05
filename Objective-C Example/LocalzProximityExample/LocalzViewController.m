@@ -9,9 +9,8 @@
 #import "LocalzViewController.h"
 #import <SpotzSDK/SpotzSDK.h>
 
-@interface LocalzViewController ()
+@interface LocalzViewController () <UIWebViewDelegate>
 @property (weak, nonatomic) IBOutlet UIWebView *webview;
-@property (nonatomic,strong) NSDictionary *spotzData;
 @end
 
 @implementation LocalzViewController
@@ -31,8 +30,6 @@
         {
             NSDictionary *payload = note.object;
             Spotz *spotz = payload[@"spotz"];
-            SpotzBeacon *beacon = payload[@"beacon"];
-            
             
             // Spotz Data to JSON
             NSDictionary *data = spotz.data;
@@ -44,15 +41,34 @@
             NSData* spotzNameData = [NSJSONSerialization dataWithJSONObject:spotzName options:0 error:nil];
             NSString* spotzNameJSON = [[NSString alloc] initWithBytes:[spotzNameData bytes] length:[spotzNameData length] encoding:NSUTF8StringEncoding];
             
-            // Spotz Beacon to JSON
-            NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor],@"serial":beacon.serial};
-            NSData* spotzBeaconData = [NSJSONSerialization dataWithJSONObject:spotzBeacon options:0 error:nil];
-            NSString* spotzBeaconJSON = [[NSString alloc] initWithBytes:[spotzBeaconData bytes] length:[spotzBeaconData length] encoding:NSUTF8StringEncoding];
+            // Either a beacon or a geofence will be passed over
+            if (payload[@"beacon"])
+            {
+                SpotzBeacon *beacon = payload[@"beacon"];
             
-            
-            NSString *str = [NSString stringWithFormat:@"monitorData(%@,%@,%@)",spotzNameJSON,spotzBeaconJSON,spotzDataJSON];
-            
-            [self.webview stringByEvaluatingJavaScriptFromString:str];
+                // Spotz Beacon to JSON
+                NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor],@"serial":beacon.serial};
+                NSData* spotzBeaconData = [NSJSONSerialization dataWithJSONObject:spotzBeacon options:0 error:nil];
+                NSString* spotzBeaconJSON = [[NSString alloc] initWithBytes:[spotzBeaconData bytes] length:[spotzBeaconData length] encoding:NSUTF8StringEncoding];
+                
+                
+                NSString *str = [NSString stringWithFormat:@"monitorData(%@,%@,%@)",spotzNameJSON,spotzBeaconJSON,spotzDataJSON];
+
+                [self.webview stringByEvaluatingJavaScriptFromString:str];
+            }
+            else if (payload[@"geofence"])
+            {
+                SpotzGeofence *geofence = payload[@"geofence"];
+                
+                // Spotz Geofence to JSON
+                NSDictionary *spotzGeofence = @{@"latitude":[NSNumber numberWithFloat:geofence.latitude],@"longitude":[NSNumber numberWithFloat:geofence.longitude],@"radius":[NSNumber numberWithFloat:geofence.radius]};
+                NSData* spotzGeofenceData = [NSJSONSerialization dataWithJSONObject:spotzGeofence options:0 error:nil];
+                NSString* spotzGeofenceJSON = [[NSString alloc] initWithBytes:[spotzGeofenceData bytes] length:[spotzGeofenceData length] encoding:NSUTF8StringEncoding];
+                
+                NSString *str = [NSString stringWithFormat:@"monitorData(%@,%@,%@)",spotzNameJSON,spotzGeofenceJSON,spotzDataJSON];
+
+                [self.webview stringByEvaluatingJavaScriptFromString:str];
+            }
         }
     }];
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzOutsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -62,7 +78,6 @@
         {
             NSDictionary *payload = note.object;
             Spotz *spotz = payload[@"spotz"];
-            SpotzBeacon *beacon = payload[@"beacon"];
             
             // Spotz Data to JSON
             NSDictionary *data = spotz.data;
@@ -74,15 +89,34 @@
             NSData* spotzNameData = [NSJSONSerialization dataWithJSONObject:spotzName options:0 error:nil];
             NSString* spotzNameJSON = [[NSString alloc] initWithBytes:[spotzNameData bytes] length:[spotzNameData length] encoding:NSUTF8StringEncoding];
             
-            // Spotz Beacon to JSON
-            NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor],@"serial":beacon.serial};
-            NSData* spotzBeaconData = [NSJSONSerialization dataWithJSONObject:spotzBeacon options:0 error:nil];
-            NSString* spotzBeaconJSON = [[NSString alloc] initWithBytes:[spotzBeaconData bytes] length:[spotzBeaconData length] encoding:NSUTF8StringEncoding];
-            
-            
-            NSString *str = [NSString stringWithFormat:@"hideData(%@,%@,%@)",spotzNameJSON,spotzBeaconJSON,spotzDataJSON];
-
-            [self.webview stringByEvaluatingJavaScriptFromString:str];
+            // Either a beacon or a geofence will be passed over
+            if (payload[@"beacon"])
+            {
+                SpotzBeacon *beacon = payload[@"beacon"];
+                
+                // Spotz Beacon to JSON
+                NSDictionary *spotzBeacon = @{@"uuid":beacon.uuid,@"major":[NSNumber numberWithInt:beacon.major],@"minor":[NSNumber numberWithInt:beacon.minor],@"serial":beacon.serial};
+                NSData* spotzBeaconData = [NSJSONSerialization dataWithJSONObject:spotzBeacon options:0 error:nil];
+                NSString* spotzBeaconJSON = [[NSString alloc] initWithBytes:[spotzBeaconData bytes] length:[spotzBeaconData length] encoding:NSUTF8StringEncoding];
+                
+                
+                NSString *str = [NSString stringWithFormat:@"hideData(%@,%@,%@)",spotzNameJSON,spotzBeaconJSON,spotzDataJSON];
+                
+                [self.webview stringByEvaluatingJavaScriptFromString:str];
+            }
+            else if (payload[@"geofence"])
+            {
+                SpotzGeofence *geofence = payload[@"geofence"];
+                
+                // Spotz Geofence to JSON
+                NSDictionary *spotzGeofence = @{@"latitude":[NSNumber numberWithFloat:geofence.latitude],@"longitude":[NSNumber numberWithFloat:geofence.longitude],@"radius":[NSNumber numberWithFloat:geofence.radius]};
+                NSData* spotzGeofenceData = [NSJSONSerialization dataWithJSONObject:spotzGeofence options:0 error:nil];
+                NSString* spotzGeofenceJSON = [[NSString alloc] initWithBytes:[spotzGeofenceData bytes] length:[spotzGeofenceData length] encoding:NSUTF8StringEncoding];
+                
+                NSString *str = [NSString stringWithFormat:@"hideData(%@,%@,%@)",spotzNameJSON,spotzGeofenceJSON,spotzDataJSON];
+                
+                [self.webview stringByEvaluatingJavaScriptFromString:str];
+            }
         }
     }];
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzRangingNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -111,27 +145,38 @@
             
             
             NSString *str = [NSString stringWithFormat:@"rangeData(%@,%@,%@)",spotzNameJSON,beaconAccJSON,spotzDataJSON];
-            NSLog(@"str: %@", str);
+
             [self.webview stringByEvaluatingJavaScriptFromString:str];
         }
-        
     }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:SpotzExtensionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        NSLog(@"Spotz Extension");
+        
+        NSDictionary *payload = note.object;
+        
+        if (payload)
+        {
+            // Payload String to JSON
+            NSData *extensionData = [NSJSONSerialization dataWithJSONObject:payload options:0 error:nil];
+            NSString* extensionJSON = [[NSString alloc] initWithBytes:[extensionData bytes] length:[extensionData length] encoding:NSUTF8StringEncoding];
+            
+            NSString *str = [NSString stringWithFormat:@"extensionData(%@)",extensionJSON];
+            
+            [self.webview stringByEvaluatingJavaScriptFromString:str];
+        }
+    }];
+}
+
+// Actions available to the website
+- (BOOL)webView:(UIWebView *)inWeb shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)inType
+{
+    if ([request.URL.scheme isEqualToString:@"recheck"])
+    {
+        [SpotzSDK forceCheckSpotz];
+        return NO;
+    }
     
-//    [[NSNotificationCenter defaultCenter] addObserverForName:SpotzExtensionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-//         NSLog(@"Spotz Extension");
-//         
-//         if (note.object)
-//         {
-//             // Payload String to JSON
-//             NSData* extensionData = [NSJSONSerialization dataWithJSONObject:@{@"payload":note.object} options:0 error:nil];
-//             NSString* extensionJSON = [[NSString alloc] initWithBytes:[extensionData bytes] length:[extensionData length] encoding:NSUTF8StringEncoding];
-//             
-//             
-//             NSString *str = [NSString stringWithFormat:@"extensionData(%@)",extensionJSON];
-//             
-//             [self.webview stringByEvaluatingJavaScriptFromString:str];
-//         }
-//    }];
+    return YES;
 }
 
 

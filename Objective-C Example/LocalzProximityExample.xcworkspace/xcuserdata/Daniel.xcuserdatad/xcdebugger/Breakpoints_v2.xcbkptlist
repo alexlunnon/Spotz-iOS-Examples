@@ -10,13 +10,43 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../spotz-sdk-ios/SpotzSDK/SpotzSDK.m"
-            timestampString = "444270614.814548"
+            timestampString = "444789807.709966"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1592"
-            endingLineNumber = "1592"
+            startingLineNumber = "1594"
+            endingLineNumber = "1594"
             landmarkName = "-locationManager:didRangeBeacons:inRegion:"
             landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[SpotzSDK locationManager:didRangeBeacons:inRegion:]"
+                  moduleName = "LocalzProximityExample"
+                  urlString = "file:///Users/Daniel/dev/spotz-sdk-ios/SpotzSDK/SpotzSDK.m"
+                  timestampString = "444787337.822571"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1598"
+                  endingLineNumber = "1598"
+                  offsetFromSymbolStart = "1452">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__53-[SpotzSDK locationManager:didRangeBeacons:inRegion:]_block_invoke"
+                  moduleName = "LocalzProximityExample"
+                  urlString = "file:///Users/Daniel/dev/spotz-sdk-ios/SpotzSDK/SpotzSDK.m"
+                  timestampString = "444787337.82282"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1599"
+                  endingLineNumber = "1599"
+                  offsetFromSymbolStart = "26">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -31,7 +61,23 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "532"
             endingLineNumber = "532"
-            landmarkName = "+retrieveSpotzWithUUID:major:minor:completion:"
+            landmarkName = "@implementation SpotzSDK"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../spotz-sdk-ios/SpotzSDK/SpotzSDK.m"
+            timestampString = "444789807.709966"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1343"
+            endingLineNumber = "1343"
+            landmarkName = "-locationManager:didDetermineState:forRegion:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
