@@ -120,16 +120,16 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             if let payload = note.object as? NSDictionary
             {
                  //handle our extension data
-//                if let httpGetWebhook = payload["httpGetWebhook"] as? NSDictionary
-//                {
-//                    println("httpGetWebhook: \(httpGetWebhook)")
-//                    // do something here
-//                }
-//                if let teradataARTIM = payload["teradataARTIM"] as? NSDictionary
-//                {
-//                    println("teradataARTIM: \(teradataARTIM)")
-//                    // do something here
-//                }
+                if let httpGetWebhook = payload["httpGetWebhook"] as? NSDictionary
+                {
+                    println("httpGetWebhook: \(httpGetWebhook)")
+                    // do something here
+                }
+                if let teradataARTIM = payload["teradataARTIM"] as? NSDictionary
+                {
+                    println("teradataARTIM: \(teradataARTIM)")
+                    // do something here
+                }
                 if let spotz = payload["spotz"] as? Spotz
                 {
                     println("Extension for Spotz: \(spotz.name)")
@@ -192,11 +192,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func updateView()
     {
-        // if were are currently inside a region. otherwise clear the screen.
+        // if we're are currently inside a region. otherwise clear the screen
         if (self.insideRegions?.count > 0)
         {
             // check whether the last inside region object was a beacon or a geofence.
-            // the list is sorted by order seen, so the first object will be last seen.
+            // the list is sorted by order seen, so the first object will be the last seen
             if let beacon = self.insideRegions?.firstObject as? SpotzBeacon
             {
                 var spotz:Spotz = self.foundSpotz?.objectForKey(beacon.spotzId) as Spotz!
@@ -205,7 +205,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 self.lbSpotzName.text = spotz.name
                 self.lbStatus.text = "Spotz rocks!"
                 self.lbDetails.text = "major:\(beacon.major) minor:\(beacon.minor) serial(\(beacon.serial))\n\(beacon.uuid)"
-                self.tableView.reloadData()
             }
             else if let geofence = self.insideRegions?.firstObject as? SpotzGeofence
             {
@@ -215,7 +214,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 self.lbSpotzName.text = spotz.name
                 self.lbStatus.text = "Spotz rocks!"
                 self.lbDetails.text = NSString(format: "%f, %f\nradius: %i", geofence.latitude, geofence.longitude, Int(geofence.radius))
-                self.tableView.reloadData()
             }
         }
         else
@@ -225,8 +223,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             self.lbStatus.text = ""
             self.lbDetails.text = ""
             self.spotzData = nil
-            self.tableView.reloadData()
         }
+        
+        self.tableView.reloadData()
     }
     
     // Button actions

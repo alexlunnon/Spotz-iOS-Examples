@@ -6,15 +6,15 @@ PODS:
     - Realm (= 0.87.4)
 
 DEPENDENCIES:
-  - SpotzSDK (from `../../Spotz-iOS-SDK`)
+  - SpotzSDK (from `https://github.com/localz/Spotz-iOS-SDK.git`)
 
 EXTERNAL SOURCES:
   SpotzSDK:
-    :path: ../../Spotz-iOS-SDK
+    :git: https://github.com/localz/Spotz-iOS-SDK.git
 
 CHECKOUT OPTIONS:
   SpotzSDK:
-    :commit: 545d4bf16fdc22677370bf9cbc1d9c6c28b0a8f9
+    :commit: 5d00467a02227ab15f821f33441d2f47a5abfd8b
     :git: https://github.com/localz/Spotz-iOS-SDK.git
 
 SPEC CHECKSUMS:

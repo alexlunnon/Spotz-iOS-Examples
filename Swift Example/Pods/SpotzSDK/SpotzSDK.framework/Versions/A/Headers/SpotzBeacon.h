@@ -17,4 +17,21 @@
 @property (nonatomic,strong) NSString *vendor;
 @property (nonatomic,strong) NSString *serial;
 @property (nonatomic) int ranging;
+
+/*
+ encodeWithCoder and initWithCoder have been added so you may save and load.
+ 
+ to save:
+ NSData *dataToSave = [NSKeyedArchiver archivedDataWithRootObject:myBeacons];
+ NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+ [def setObject:dataToSave forKey:@"dataKey"];
+ 
+ to load:
+ NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+ NSData *dataToLoad = [def objectForKey:@"dataKey"];
+ NSArray *myBeacons = [NSKeyedUnarchiver unarchiveObjectWithData:dataToLoad];
+ 
+ (where myBeacons is an array filled with SpotzBeacon. you could also save a single SpotzBeacon without an array)
+ */
+
 @end

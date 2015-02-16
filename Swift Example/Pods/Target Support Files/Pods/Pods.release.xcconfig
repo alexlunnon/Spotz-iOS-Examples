@@ -1,5 +1,5 @@
 CLANG_CXX_LANGUAGE_STANDARD = compiler-default
-FRAMEWORK_SEARCH_PATHS = $(inherited) "$(PODS_ROOT)/../../../Spotz-iOS-SDK"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "$(PODS_ROOT)/SpotzSDK"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
 HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/Realm" "${PODS_ROOT}/Headers/Public/Realm/Realm" "${PODS_ROOT}/Headers/Public/Realm/tightdb" "${PODS_ROOT}/Headers/Public/Realm/tightdb/util" "${PODS_ROOT}/Headers/Public/SpotzSDK" "${PODS_ROOT}/Headers/Public/core/include" "${PODS_ROOT}/Headers/Public/core/include/tightdb" "${PODS_ROOT}/Headers/Public/core/include/tightdb/impl" "${PODS_ROOT}/Headers/Public/core/include/tightdb/util"
 LIBRARY_SEARCH_PATHS = "$(PODS_ROOT)/Realm/core"
