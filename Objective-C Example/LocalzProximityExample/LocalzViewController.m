@@ -19,7 +19,7 @@
 // BUT we use magic to avoid these limits, so
 //  there may be a delay between swapping
 //  inbetween Spotz groups if you don't use
-//  SpotzSDK.forceCheckSpotz().
+//  [SpotzSDK forceCheckSpotz].
 //
 // Geofences are not as accurate as beacons,
 //  AT BEST they have an accuracy of 5 meters.
