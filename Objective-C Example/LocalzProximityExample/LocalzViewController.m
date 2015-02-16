@@ -6,6 +6,31 @@
 //  Copyright (c) 2014 Localz Pty Ltd. All rights reserved.
 //
 
+// Things to remember
+// ------------------
+//
+// You cannot monitor for more than 20 regions
+//  (20 regions = total beacons + total geofences)
+//  per app.
+// There is also a device limit which you are
+//  not told about. On smaller devices (e.g.
+//  iPod touch) this is 20 regions. On larger
+//  devices (e.g. iPhone 6) this is 30 regions.
+// BUT we use magic to avoid these limits, so
+//  there may be a delay between swapping
+//  inbetween Spotz groups if you don't use
+//  SpotzSDK.forceCheckSpotz().
+//
+// Geofences are not as accurate as beacons,
+//  AT BEST they have an accuracy of 5 meters.
+// So it is very possible that a devices can
+//  physically cross a geofences area but not
+//  be picked up because the device still thinks
+//  it is outside due to the low accuracy. Walking
+//  around a little may help.
+//
+// That is all :)
+
 #import "LocalzViewController.h"
 #import <SpotzSDK/SpotzSDK.h>
 
@@ -14,8 +39,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *lbSpotzName;
 @property (weak, nonatomic) IBOutlet UILabel *lbDetails;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (strong, nonatomic) NSDictionary *spotzData;
-@property (strong, nonatomic) NSString *currentRegionId;
+
+@property (strong, nonatomic) NSMutableDictionary *foundSpotz; // all the spotz we have seen
+@property (strong, nonatomic) NSMutableArray *insideRegions; // all the regions we are currently inside (can be more than 1 beacon per spot)
+@property (strong, nonatomic) NSDictionary *spotzData; // the attributes of the current spot
 
 @end
 
@@ -25,13 +52,13 @@
 {
     [super viewDidLoad];
     
-    // Start with a clean screen
+    self.foundSpotz = [NSMutableDictionary new];
+    self.insideRegions = [NSMutableArray new];
     
-    [self showSpotzDetails:nil];
-    [self showBeaconDetails:nil];
+    // Start with a clean screen
+    [self updateView];
     
     // Set up our Notification Observers
-    
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzInsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         
         if (note.object)
@@ -43,24 +70,19 @@
             if (data[@"beacon"])
             {
                 SpotzBeacon *beacon = data[@"beacon"];
-                [self showBeaconDetails:beacon];
+                [self addRegionWithSpotz:spotz beacon:beacon geofence:nil];
                 
                 NSLog(@"Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
             }
-            
-            if (data[@"geofence"])
+            else if (data[@"geofence"])
             {
                 SpotzGeofence *geofence = data[@"geofence"];
-                [self showGeofenceDetails:geofence];
+                [self addRegionWithSpotz:spotz beacon:nil geofence:geofence];
                 
                 NSLog(@"Entry geofence (%@) detected with latitude: %f longitude %f",spotz.name,geofence.latitude,geofence.longitude);
             }
-            
-            self.lbStatus.text = @"Spotz rocks!";
-            [self showSpotzDetails:spotz];
         }
     }];
-    
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzOutsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         
         if(note.object)
@@ -73,31 +95,19 @@
             if (data[@"beacon"])
             {
                 SpotzBeacon *beacon = data[@"beacon"];
-                if (self.currentRegionId && [beacon.serial isEqualToString:self.currentRegionId])
-                {
-                    self.lbStatus.text = @"Find me spotz yo!";
-                    [self showSpotzDetails:nil];
-                    [self showBeaconDetails:nil];
-                }
+                [self removeRegionsWithBeacon:beacon geofence:nil];
                 
                 NSLog(@"Exit beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
             }
-            
-            if (data[@"geofence"])
+            else if (data[@"geofence"])
             {
                 SpotzGeofence *geofence = data[@"geofence"];
-                if (self.currentRegionId && [geofence.spotzId isEqualToString:self.currentRegionId])
-                {
-                    self.lbStatus.text = @"Find me spotz yo!";
-                    [self showSpotzDetails:nil];
-                    [self showGeofenceDetails:nil];
-                }
+                [self removeRegionsWithBeacon:nil geofence:geofence];
                 
                 NSLog(@"Exit geofence (%@) detected with latitude: %f longitude %f",spotz.name,geofence.latitude,geofence.longitude);
             }
         }
     }];
-    
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzRangingNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         
         if (note.object)
@@ -109,81 +119,134 @@
             NSNumber *acc = data[@"accuracy"];
             
             // Show the accuracy of the spotz
-            self.lbDetails.hidden = false;
             self.lbDetails.text = [NSString stringWithFormat:@"Accuracy: %fm", acc.floatValue];
-            
-            [self showSpotzDetails:spotz];
+            self.lbSpotzName.text = spotz.name;
+            if (![self.spotzData isEqualToDictionary:spotz.data])
+            {
+                self.spotzData = spotz.data;
+                [self.tableView reloadData];
+            }
             
             NSLog(@"Spotz %@ accuracy %@", spotz.name, acc);
         }
     }];
-    
     [[NSNotificationCenter defaultCenter] addObserverForName:SpotzExtensionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         
         if (note.object)
         {
-            NSLog(@"Extension data: %@", note.object);
+            NSDictionary *payload = note.object;
+            if (payload[@"httpGetWebhook"])
+            {
+                NSDictionary *httpGetWebhook = payload[@"httpGetWebhook"];
+                NSLog(@"httpGetWebhook: %@", httpGetWebhook);
+            }
+            if (payload[@"teradataARTIM"])
+            {
+                NSDictionary *teradataARTIM = payload[@"teradataARTIM"];
+                NSLog(@"teradataARTIM: %@", teradataARTIM);
+            }
+            if (payload[@"spotz"])
+            {
+                Spotz *spotz = payload[@"spotz"];
+                NSLog(@"Extension for Spotz: %@", spotz);
+            }
         }
     }];
 }
 
-- (void) showSpotzDetails:(Spotz *)spotz
+- (void) addRegionWithSpotz:(Spotz *)spotz beacon:(SpotzBeacon *)beacon geofence:(SpotzGeofence *)geofence
 {
-    if(spotz)
-    {
-        // show the spotz name and any attributes
-        self.lbSpotzName.hidden = NO;
-        self.tableView.hidden = NO;
-        self.lbSpotzName.text = spotz.name;
-        
-        self.spotzData = spotz.data;
-        [self.tableView reloadData];
-    }
-    else
-    {
-        // hide the spotz name and any attributes
-        self.lbSpotzName.hidden = YES;
-        self.tableView.hidden = YES;
-        self.spotzData = @{};
-    }
-}
-
-- (void) showBeaconDetails:(SpotzBeacon *)beacon
-{
+    // add or update the known spotz
+    
+    [self.foundSpotz setObject:spotz forKey:spotz.id];
+    
+    // add to our currently inside regions
     if (beacon)
     {
-        // show the major, minor, serial and uuid of the beacon
-        self.lbDetails.hidden = false;
-        self.lbDetails.text = [NSString stringWithFormat:@"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid];
-        
-        self.currentRegionId = beacon.serial;
+        [self.insideRegions insertObject:beacon atIndex:0];
     }
-    else
-    {
-        // hide the major, minor, serial and uuid of the beacon
-        self.lbDetails.hidden = true;
-        
-        self.currentRegionId = nil;
-    }
-}
-
-- (void) showGeofenceDetails:(SpotzGeofence *)geofence
-{
     if (geofence)
     {
-        // show the latitude and longitude of the geofence
-        self.lbDetails.hidden = false;
-        self.lbDetails.text = [NSString stringWithFormat:@"latitude: %f longitude: %f\nradius: %f", geofence.latitude, geofence.longitude, geofence.radius];
-        
-        self.currentRegionId = geofence.spotzId;
+        [self.insideRegions insertObject:geofence atIndex:0];
+    }
+    
+    [self updateView];
+}
+
+- (void) removeRegionsWithBeacon:(SpotzBeacon *)beacon geofence:(SpotzGeofence *)geofence
+{
+    NSMutableArray *newArray = [NSMutableArray new];
+    
+    // create a new array with all the same regions excluding the beacons and geofences passed in
+    for (int i = 0; i < self.insideRegions.count; i++)
+    {
+        if ([self.insideRegions[i] isKindOfClass:[SpotzBeacon class]])
+        {
+            // we can use the serial here beacuse every beacon has a different serial
+            SpotzBeacon *b = self.insideRegions[i];
+            if (beacon.serial && ![beacon.serial isEqualToString:b.serial])
+            {
+                [newArray addObject:b];
+            }
+        }
+        else if ([self.insideRegions[i] isKindOfClass:[SpotzGeofence class]])
+        {
+            // we can use spotzId here because each spot can ONLY have one geofence at most
+            SpotzGeofence *g = self.insideRegions[i];
+            if (geofence.spotzId && ![geofence.spotzId isEqualToString:g.spotzId])
+            {
+                [newArray addObject:g];
+            }
+        }
+        else
+        {
+            // something odd has been passed in or nothing. don't update
+            return;
+        }
+    }
+    
+    self.insideRegions = newArray;
+    [self updateView];
+}
+
+- (void) updateView
+{
+    // if we're currently inside a region. otherwise clear the screen
+    if (self.insideRegions.count > 0)
+    {
+        // check whether the last inside region object was a beacon or a geofence.
+        // the list is sorted by order seen, so the first object will be the last seen
+        if ([self.insideRegions.firstObject isKindOfClass:[SpotzBeacon class]])
+        {
+            SpotzBeacon *beacon = self.insideRegions.firstObject;
+            Spotz *spotz = [self.foundSpotz objectForKey:beacon.spotzId];
+            self.spotzData = spotz.data;
+            
+            self.lbSpotzName.text = spotz.name;
+            self.lbStatus.text = @"Spotz rocks!";
+            self.lbDetails.text = [NSString stringWithFormat:@"major: %i minor: %i serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid];
+        }
+        else if ([self.insideRegions.firstObject isKindOfClass:[SpotzGeofence class]])
+        {
+            SpotzGeofence *geofence = self.insideRegions.firstObject;
+            Spotz *spotz = [self.foundSpotz objectForKey:geofence.spotzId];
+            self.spotzData = spotz.data;
+            
+            self.lbSpotzName.text = spotz.name;
+            self.lbStatus.text = @"Spotz rocks!";
+            self.lbDetails.text = [NSString stringWithFormat:@"%f, %f\nradius: %i", geofence.latitude, geofence.longitude, (int)geofence.radius];
+        }
     }
     else
     {
-        // hide the latitude and longitude of the geofence
-        self.lbDetails.hidden = true;
-        
-        self.currentRegionId = nil;
+        // clear the screen
+        self.lbSpotzName.text = @"";
+        self.lbStatus.text = @"";
+        self.lbDetails.text = @"";
+        self.spotzData = nil;
     }
+    
+    [self.tableView reloadData];
 }
 
 #pragma mark - Button actions
@@ -194,11 +257,14 @@
 }
 
 
-#pragma mark - Table delegates
+#pragma mark - TableView delegates
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    if (self.spotzData.count > 0)
+        return 1;
+    else
+        return 0;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section

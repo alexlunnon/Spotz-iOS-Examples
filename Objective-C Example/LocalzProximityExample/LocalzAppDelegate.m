@@ -57,6 +57,18 @@
 {
     NSLog(@"SpotzSDK initialized successfully");
     [SpotzSDK startServices];
+    
+    // your extension ids
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    // zapier webhook
+    [payload setObject:@"<myValue>" forKey:@"zapierWebhook.<myKey>"];
+    // teradata atrim
+    [payload setObject:@"<teradataAccount>" forKey:@"teradataARTIM.<customerAccount>"];
+    // screenz
+    [payload setObject:@"<Screenz API Application ID>" forKey:@"screenz-api.userId"];
+    
+    // uncomment this when you have chosen your extensions above
+//    [SpotzSDK identity:@"<myUsername>" attributes:payload];
 }
 
 - (void)spotzSDKInitFailed:(NSError *)error

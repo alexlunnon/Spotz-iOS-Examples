@@ -222,7 +222,6 @@
 				ORGANIZATIONNAME = "Localz Pty Ltd";
 				TargetAttributes = {
 					09B7A6CC1997DD1E00668DE9 = {
-						DevelopmentTeam = SQ4GG4SYBV;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -452,6 +451,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LocalzProximityExample/LocalzProximityExample-Prefix.pch";
 				INFOPLIST_FILE = "LocalzProximityExample/LocalzProximityExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -474,6 +474,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LocalzProximityExample/LocalzProximityExample-Prefix.pch";
 				INFOPLIST_FILE = "LocalzProximityExample/LocalzProximityExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";

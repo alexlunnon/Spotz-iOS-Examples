@@ -8,8 +8,163 @@ Just add the following line to your Podfile:
 pod 'SpotzSDK', :git => 'https://github.com/localz/Spotz-iOS-SDK.git'
 ```
 
+How to use the SDK
+==================
+
+**Currently only devices that support Bluetooth Low Energy (iPhone 4s or above, running iOS 7 or better) are able to make use of the Spotz SDK**. It is safe to include the SDK on earlier versions of iOS or devices that don't support Bluetooth Low Energy. 
+
+There are only 4 actions to implement - **configure, initialize, start services and listen!**
+
+*Refer to the sample app code for a working implementation of the SDK.*
+
+
+**1. Set authorization message**
+
+For iOS 8 or later, please add the following key to Info.plist with a message that will be presented to the user when they first start the app.
+```
+NSLocationAlwaysUsageDescription
+```
+
+**2. Initialize the Spotz SDK**
+
+In AppDelegate's didFinishLaunchingWithOptions add the following:
+Swift
+```
+SpotzSDK.initializeWithAppId("<Enter your app ID here>", clientKey: "<Enter your client key here>", delegate: self, withOptions:nil)
+```
+
+Objective-C
+```
+[SpotzSDK initializeWithAppId:@"<Enter your app ID here>" clientKey:@"<Enter your client key here>" delegate:self withOptions:nil];
+```
+
+When initialization is successful, it will call the spotzSDKInitSuccessfull delegate method
+
+**3. Start services**
+
+Swift
+```
+func spotzSDKInitSuccessfull() {
+    NSLog("SpotzSDK initialized successfully")
+    SpotzSDK.startServices()
+}
+
+func spotzSDKInitFailed(error: NSError!) {
+    NSLog("Error %@", error)
+}
+```
+
+Objective-C
+```
+#pragma mark - SpotzSDK delegates
+- (void)spotzSDKInitSuccessfull {
+    NSLog(@"SpotzSDK initialized successfully");
+    [SpotzSDK startServices];
+}
+
+- (void)spotzSDKInitFailed:(NSError *)error {
+    NSLog(@"Error %@",error);
+}
+```
+
+You can place this listener where it makes sense
+
+**4. Listen for notifications**
+
+Swift
+```
+// Set up to receive notifications from your spots
+NSNotificationCenter.defaultCenter().addObserverForName(SpotzInsideNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
+    if let data:NSDictionary = note.object as? NSDictionary
+    {
+        if let spotz: Spotz = data["spotz"] as? Spotz
+        {
+            NSLog("Spotz id: %@ name: %@",spotz.id,spotz.name);
+            // Do something with this Spotz data
+        }
+        
+        if let beacon: SpotzBeacon = data["beacon"] as? SpotzBeacon
+        {
+            NSLog("Enter beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
+            // Do something with this beacon data
+        }
+    }
+}
+
+NSNotificationCenter.defaultCenter().addObserverForName(SpotzRangingNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
+    if let data: NSDictionary = note.object as? NSDictionary
+    {
+        if let spotz = data["spotz"] as? Spotz
+        {
+            NSLog("Spotz id: %@ name: %@",spotz.id,spotz.name);
+            // Do something with this Spotz data
+        }
+        if let acc = data["accuracy"] as? NSNumber
+        {
+            NSLog("Accuracy %@", acc)
+            // Show the accuracy of the spotz
+        }
+        
+        NSLog("Show spotz ranging details")
+    }
+}
+```
+
+Objective-C
+```
+[[NSNotificationCenter defaultCenter] addObserverForName:SpotzInsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+  	if (note.object)
+  	{
+  	    NSDictionary *data = note.object;
+
+        Spotz *spotz = data[@"spotz"];
+        SpotzBeacon *beacon = data[@"beacon"];
+
+  	    NSLog(@"Beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
+  	    NSLog(@"Show spotz details");
+
+  	    // Do something with this Spotz and beacon data
+    }
+}];
+
+[[NSNotificationCenter defaultCenter] addObserverForName:SpotzRangingNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+    if (note.object)
+    {
+        NSDictionary *data = note.object;
+        
+        Spotz *spotz = data[@"spotz"];
+        NSNumber *acc = data[@"accuracy"];
+        
+        NSLog(@"Spotz id: %@ name: %@",spotz.id,spotz.name);
+        NSLog(@"Accuracy %@", acc);
+        NSLog(@"Show spotz ranging details");
+	
+        // Do something with this Spotz and accuracy data
+    }
+}];
+```
+
+You can listen for the following notifications:
+
+- SpotzInsideNotification
+- SpotzOutsideNotification
+- SpotzRangingNotification
+- SpotzExtensionNotification
+
+When available, both Spotz and SpotzBeacon objects will be returned in the note.object's NSDictionary in both SpotzInsideNotification and SpotzOutsideNotification.
+CLBeacon and rssi may be returned in SpotzRangingNotification.
+When/if using CLBeacon, remember to @import CoreLocation at the top of your file.
+
 Changelog
 =========
+**2.0.0**
+* Spotz 2.0 release!
+* Added spotz grouping
+* Added geofences
+* Added offline mode
+* Added extensions
+* Recheck regions greatly sped up
+
 **1.0.5**
 * Added spotz ranging
 
@@ -26,153 +181,11 @@ Changelog
 **1.0.1**
 * Initial public release.
 
-How to use the SDK
-==================
-
-**Currently only devices that support Bluetooth Low Energy (iPhone 4s or above, running iOS 7 or better) are able to make use of the Spotz SDK**. It is safe to include the SDK on earlier versions of iOS or devices that don't support Bluetooth Low Energy. 
-
-There are only 4 actions to implement - **configure, initialize, start services and listen!**
-
-*Refer to the sample app code for a working implementation of the SDK.*
-
-In AppDelegate's didFinishLaunchingWithOptions add the following:
-
-**1. Set authorization message**
-
-For iOS 8 or later, please add the following key to Info.plist with a message that will be presented to the user when they first start the app.
-```
-NSLocationAlwaysUsageDescription
-```
-
-**2. Initialize the Spotz SDK**
-
-Swift
-```
-    SpotzSDK.initializeWithAppId("<Enter your app ID here>", clientKey: "<Enter your client key here>", delegate: self, withOptions:nil)
-```
-
-Objective-C
-```
-    [SpotzSDK initializeWithAppId:@"<Enter your app ID here>" clientKey:@"<Enter your client key here>" delegate:self withOptions:nil];
-```
-
-When initialization is successful, it will call the spotzSDKInitSuccessfull delegate
-
-**3. Start services**
-
-Swift
-```
-func spotzSDKInitSuccessfull() {
-    NSLog("SpotzSDK initialized successfully")
-    SpotzSDK.startServices()
-}
-
-func spotzSDKInitFailed(error: NSError!) {
-    // Spotz failed to initialise
-    NSLog("Error %@", error)
-}
-```
-
-Objective-C
-```
-#pragma mark - SpotzSDK delegates
-- (void)spotzSDKInitSuccessfull
-{
-    NSLog(@"SpotzSDK initialized successfully");
-    [SpotzSDK startServices];
-}
-
-- (void)spotzSDKInitFailed:(NSError *)error
-{
-    // Spotz failed to initialise
-    NSLog(@"Error %@",error);
-}
-```
-
-You can place this listener where it makes sense
-
-**4. Listen for notifications**
-
-Swift
-```
-// set up to recieve notifications from a spot
-NSNotificationCenter.defaultCenter().addObserverForName(SpotzInsideNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
-  if note.object != nil {
-    var data: NSDictionary! = note.object as NSDictionary
-
-    var spotz = data["spotz"] as Spotz!
-    var beacon = data["beacon"] as SpotzBeacon!
-        
-    NSLog("Beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor)
-    NSLog("Show spotz details")
-    // Do something amazing here
-  }
-}
-
-NSNotificationCenter.defaultCenter().addObserverForName(SpotzRangingNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
-  if note.object != nil {
-    var data: NSDictionary! = note.object as NSDictionary
-                
-    var spotz = data["spotz"] as Spotz!
-    var acc = data["accuracy"] as NSNumber!
-    var clBeacon = data["CLBeacon"] as CLBeacon?
-                
-    NSLog("Show spotz ranging details")
-    // Do something else amazing here
-
-  }
-}
-```
-
-Objective-C
-```
-[[NSNotificationCenter defaultCenter] addObserverForName:SpotzInsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-	if (note.object)
-	{
-	    NSDictionary *data = note.object;
-
-      	    Spotz *spotz = data[@"spotz"];
-      	    SpotzBeacon *beacon = data[@"beacon"];
-       
-       	    NSLog(@"Beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
-       	    NSLog(@"Show spotz details");
-
-       	    // Do something amazing here
-       	}
-}];
-
-[[NSNotificationCenter defaultCenter] addObserverForName:SpotzRangingNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-        if (note.object)
-	{
-	    NSDictionary *data = note.object;
-        
-            Spotz *spotz = data[@"spotz"];
-            NSNumber *acc = data[@"accuracy"];
-	    CLBeacon *clBeacon = data[@"CLBeacon"];
-        
-            NSLog(@"Show spotz ranging details");
-	
-	    // Do something else amazing here
-	}
-}];
-```
-
-You can listen for the following notifications:
-
-- SpotzInsideNotification
-- SpotzOutsideNotification
-- SpotzRangingNotification
-
-When available, both Spotz and SpotzBeacon objects will be returned in the note.object's NSDictionary in both SpotzInsideNotification and SpotzOutsideNotification.
-When/if using CLBeacon, remember to @import CoreLocation at the top of your file.
-
 Contribution
 ============
-
 For bugs, feature requests, or other questions, [file an issue](https://github.com/localz/Spotz-iOS-SDK/issues/new).
 
 License
 =======
-
-Copyright 2014 Localz Pty Ltd
+Copyright 2015 Localz Pty Ltd
 

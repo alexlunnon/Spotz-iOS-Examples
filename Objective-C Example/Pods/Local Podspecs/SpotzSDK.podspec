@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
 	s.name	= 'SpotzSDK'
 	s.platform = :ios,'6.0'
 	s.license = 'Commercial License'
-	s.version = '1.0.5.7'
+	s.version = '2.0.0.0'
 	s.summary = 'SpotzSDK'
 	s.homepage = 'http://www.localz.co'
 	s.author = { 'Melvin Artemas' => 'ma@localz.co' }

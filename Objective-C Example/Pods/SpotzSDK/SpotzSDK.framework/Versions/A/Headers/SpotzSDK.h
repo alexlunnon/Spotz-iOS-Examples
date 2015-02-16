@@ -98,7 +98,7 @@ extern NSString * const SpotzExtensionNotification;
  *  @param userInfo dictionary of the push notification
  *  @param state application state of the current device
  */
-+ (void) receivedRemoteNotification:(NSDictionary *)userInfo applicationState:(UIApplicationState)state;
++ (void) receivedRemoteNotification:(NSDictionary *)userInfo;
 
 /**
  *  This will check status of spotz and re-trigger spotz notifications if any
