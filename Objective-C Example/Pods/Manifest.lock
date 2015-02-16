@@ -14,7 +14,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   SpotzSDK:
-    :commit: 5d00467a02227ab15f821f33441d2f47a5abfd8b
+    :commit: 93dd5bb6ac2c8e4484fab7cfd5e80b418883d338
     :git: https://github.com/localz/Spotz-iOS-SDK.git
 
 SPEC CHECKSUMS:

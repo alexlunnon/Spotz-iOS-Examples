@@ -75,18 +75,20 @@ Swift
 ```
 // Set up to receive notifications from your spots
 NSNotificationCenter.defaultCenter().addObserverForName(SpotzInsideNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
-    if let data:NSDictionary = note.object as? NSDictionary
+    if let data = note.object as? NSDictionary
     {
-        if let spotz: Spotz = data["spotz"] as? Spotz
+        // Take out the Spotz object and its beacon
+        if let spotz = data["spotz"] as? Spotz
         {
-            NSLog("Spotz id: %@ name: %@",spotz.id,spotz.name);
-            // Do something with this Spotz data
-        }
-        
-        if let beacon: SpotzBeacon = data["beacon"] as? SpotzBeacon
-        {
-            NSLog("Enter beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
-            // Do something with this beacon data
+            // Entry region will be either a geofence or a beacon
+            if let beacon = data["beacon"] as? SpotzBeacon
+            {
+                NSLog("Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
+            }
+            if let geofence = data["geofence"] as? SpotzGeofence
+            {
+                NSLog("Entry geofence (%@) detected with latitude: %f longitude: %f radius %i",spotz.name,geofence.latitude,geofence.longitude,Int(geofence.radius));
+            }
         }
     }
 }
@@ -113,17 +115,22 @@ NSNotificationCenter.defaultCenter().addObserverForName(SpotzRangingNotification
 Objective-C
 ```
 [[NSNotificationCenter defaultCenter] addObserverForName:SpotzInsideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-  	if (note.object)
-  	{
-  	    NSDictionary *data = note.object;
-
+    if (note.object)
+    {
+        // Take out the Spotz object and its beacon
+        NSDictionary *data = note.object;
         Spotz *spotz = data[@"spotz"];
-        SpotzBeacon *beacon = data[@"beacon"];
-
-  	    NSLog(@"Beacon detected with UUID: %@ major: %i minor: %i",beacon.uuid,beacon.major,beacon.minor);
-  	    NSLog(@"Show spotz details");
-
-  	    // Do something with this Spotz and beacon data
+        
+        if (data[@"beacon"])
+        {
+            SpotzBeacon *beacon = data[@"beacon"];
+            NSLog(@"Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
+        }
+        else if (data[@"geofence"])
+        {
+            SpotzGeofence *geofence = data[@"geofence"];
+            NSLog(@"Entry geofence (%@) detected with latitude: %f longitude %f",spotz.name,geofence.latitude,geofence.longitude);
+        }
     }
 }];
 
@@ -137,8 +144,7 @@ Objective-C
         
         NSLog(@"Spotz id: %@ name: %@",spotz.id,spotz.name);
         NSLog(@"Accuracy %@", acc);
-        NSLog(@"Show spotz ranging details");
-	
+
         // Do something with this Spotz and accuracy data
     }
 }];
@@ -151,9 +157,18 @@ You can listen for the following notifications:
 - SpotzRangingNotification
 - SpotzExtensionNotification
 
+**Other things to remember**
+
 When available, both Spotz and SpotzBeacon objects will be returned in the note.object's NSDictionary in both SpotzInsideNotification and SpotzOutsideNotification.
 CLBeacon and rssi may be returned in SpotzRangingNotification.
 When/if using CLBeacon, remember to @import CoreLocation at the top of your file.
+
+You cannot monitor for more than 20 regions (20 regions = total beacons + total geofences) per app.
+There is also a device limit which you are not told about. On smaller devices (e.g. iPod touch) this is 20 regions. On larger devices (e.g. iPhone 6) this is 30 regions.
+BUT we use magic to avoid these limits, so there may be a delay between swapping inbetween Spotz groups if you don't use SpotzSDK.forceCheckSpotz() or [SpotzSDK forceCheckSpotz].
+
+Geofences are not as accurate as beacons, AT BEST they have an accuracy of 5 meters.
+So it is very possible that a devices can physically cross a geofences area but not be picked up because the device still thinks it is outside due to the low accuracy. Walking around a little may help.
 
 Changelog
 =========
