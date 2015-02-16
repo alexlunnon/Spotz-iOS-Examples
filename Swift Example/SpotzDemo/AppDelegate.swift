@@ -53,6 +53,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SpotzSDKDelegate {
     func spotzSDKInitSuccessfull() {
         NSLog("SpotzSDK initialized successfully")
         SpotzSDK.startServices()
+        
+        // your extension ids
+        var payload = NSMutableDictionary()
+        // zapier webhook
+        payload.setObject("<myValue>", forKey: "zapierWebhook.<myKey>")
+        // teradata atrim
+        payload.setObject("<teradataAccount>", forKey: "teradataARTIM.<customerAccount>")
+        // screenz
+        payload.setObject("<Screenz API Application ID>", forKey: "screenz-api.userId")
+        
+        // uncomment this when you have chosen your extensions above
+//        SpotzSDK.identity("<myUsername (optional)>", attributes: payload)
     }
     
     func spotzSDKInitFailed(error: NSError!) {

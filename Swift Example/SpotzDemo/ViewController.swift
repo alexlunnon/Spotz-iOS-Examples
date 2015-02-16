@@ -6,6 +6,31 @@
 //  Copyright (c) 2014 Localz Pty Ltd. All rights reserved.
 //
 
+// Things to remember
+// ------------------
+//
+// You cannot monitor for more than 20 regions
+//  (20 regions = total beacons + total geofences) 
+//  per app.
+// There is also a device limit which you are
+//  not told about. On smaller devices (e.g.
+//  iPod touch) this is 20 regions. On larger
+//  devices (e.g. iPhone 6) this is 30 regions.
+// BUT we use magic to avoid these limits, so
+//  there may be a delay between swapping
+//  inbetween Spotz groups if you don't use
+//  SpotzSDK.forceCheckSpotz().
+//
+// Geofences are not as accurate as beacons,
+//  AT BEST they have an accuracy of 5 meters.
+// So it is very possible that a devices can
+//  physically cross a geofences area but not
+//  be picked up because the device still thinks
+//  it is outside due to the low accuracy. Walking
+//  around a little may help.
+//
+// That is all :)
+
 import UIKit
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -13,79 +38,62 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet weak var lbSpotzName: UILabel!
     @IBOutlet weak var lbDetails: UILabel!
     @IBOutlet weak var tableView: UITableView!
-    var spotzData: NSDictionary?
-    var currentRegionId: String?
+    
+    var foundSpotz: NSMutableDictionary! = NSMutableDictionary() // all the spotz we have seen
+    var insideRegions: NSMutableArray! = NSMutableArray() // all the regions we are currently inside (can be more than 1 beacon per spot)
+    var spotzData: NSDictionary? // the attributes of the current spot
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Start with a clean screen
-
-        self.showSpotzDetails(nil)
-        self.showBeaconDetails(nil)
-        self.showGeofenceDetails(nil)
+        self.updateView()
         
         // Set up our Notification Observers
-        
         NSNotificationCenter.defaultCenter().addObserverForName(SpotzInsideNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
             
             if let data = note.object as? NSDictionary
             {
                 // Take out the Spotz object and its beacon
-                let spotz = data["spotz"] as Spotz!
-                
-                // Entry region will be either a geofence or a beacon
-                if let beacon = data["beacon"] as? SpotzBeacon
+                if let spotz = data["spotz"] as? Spotz
                 {
-                    self.showBeaconDetails(beacon)
-                    NSLog("Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
+                    // Entry region will be either a geofence or a beacon
+                    if let beacon = data["beacon"] as? SpotzBeacon
+                    {
+                        self.addRegion(spotz, beacon: beacon, geofence: nil)
+                        NSLog("Entry beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
+                    }
+                    
+                    if let geofence = data["geofence"] as? SpotzGeofence
+                    {
+                        self.addRegion(spotz, beacon: nil, geofence: geofence)
+                        NSLog("Entry geofence (%@) detected with latitude: %f longitude: %f radius %i",spotz.name,geofence.latitude,geofence.longitude,Int(geofence.radius));
+                    }
                 }
-                
-                if let geofence = data["geofence"] as? SpotzGeofence
-                {
-                    self.showGeofenceDetails(geofence)
-                    NSLog("Entry geofence (%@) detected with latitude: %f longitude: %f",spotz.name,geofence.latitude,geofence.longitude);
-                }
-                
-                self.lbStatus.text = "Spotz rocks!"
-                self.showSpotzDetails(spotz)
             }
         }
-        
         NSNotificationCenter.defaultCenter().addObserverForName(SpotzOutsideNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
             
             if let data = note.object as? NSDictionary
             {
-                // Take out the Spotz object and its beacon
-                let spotz = data["spotz"] as Spotz!
-                
-                // Remove the current spot from the screen if it is the last found as well
-                if let beacon = data["beacon"] as? SpotzBeacon
+                // Take out the Spotz object and its beacon or geofence
+                if let spotz = data["spotz"] as? Spotz
                 {
-                    if (beacon.serial == self.currentRegionId)
+                    // Remove the current spot from the screen if it is the last found as well
+                    if let beacon = data["beacon"] as? SpotzBeacon
                     {
-                        self.lbStatus.text = "Find me spotz yo!"
-                        self.showBeaconDetails(nil)
-                        self.showSpotzDetails(nil)
+                        self.removeRegions(beacon, geofence: nil)
+                        NSLog("Exit beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
                     }
                     
-                    NSLog("Exit beacon (%@) detected with UUID: %@ major: %i minor: %i",spotz.name,beacon.uuid,beacon.major,beacon.minor);
+                    if let geofence = data["geofence"] as? SpotzGeofence
+                    {
+                        self.removeRegions(nil, geofence: geofence)
+                        NSLog("Exit geofence (%@) detected with latitude: %f longitude: %f radius %i",spotz.name,geofence.latitude,geofence.longitude, Int(geofence.radius));
+                    }
                 }
-                
-                if let geofence = data["geofence"] as? SpotzGeofence
-                {
-                    if (geofence.spotzId == self.currentRegionId)
-                    {
-                        self.lbStatus.text = "Find me spotz yo!"
-                        self.showGeofenceDetails(nil)
-                        self.showSpotzDetails(nil)
-                    }
-                    
-                    NSLog("Exit geofence (%@) detected with latitude: %f longitude: %f",spotz.name,geofence.latitude,geofence.longitude);
-                } 
             }
         }
-        
         NSNotificationCenter.defaultCenter().addObserverForName(SpotzRangingNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
             
             if let data = note.object as? NSDictionary
@@ -96,87 +104,135 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 let acc = data["accuracy"] as NSNumber!
                 
                 // Show the accuracy of the spotz
-                self.lbDetails.hidden = false
                 self.lbDetails.text = NSString(format: "Accuracy: %fm", acc.floatValue)
-                
-                self.showSpotzDetails(spotz)
+                self.lbSpotzName.text = spotz.name
+                if (self.spotzData != spotz.data)
+                {
+                    self.spotzData = spotz.data
+                    self.tableView.reloadData()
+                }
                 
                 NSLog("Spotz %@ accuracy %@", spotz.name, acc);
             }
         }
-        
         NSNotificationCenter.defaultCenter().addObserverForName(SpotzExtensionNotification, object: nil, queue: nil) { (note:NSNotification!) -> Void in
             
-            if let data = note.object as? NSString
+            if let payload = note.object as? NSDictionary
             {
-                NSLog("Extension data: %@", data)
+                 //handle our extension data
+//                if let httpGetWebhook = payload["httpGetWebhook"] as? NSDictionary
+//                {
+//                    println("httpGetWebhook: \(httpGetWebhook)")
+//                    // do something here
+//                }
+//                if let teradataARTIM = payload["teradataARTIM"] as? NSDictionary
+//                {
+//                    println("teradataARTIM: \(teradataARTIM)")
+//                    // do something here
+//                }
+                if let spotz = payload["spotz"] as? Spotz
+                {
+                    println("Extension for Spotz: \(spotz.name)")
+                }
             }
         }
     }
     
-    func showSpotzDetails(spotz:Spotz!) {
+    func addRegion(spotz:Spotz!, beacon:SpotzBeacon!, geofence:SpotzGeofence!) {
         
-        if (spotz != nil)
-        {
-            // show the spotz name and any attributes
-            self.lbSpotzName.hidden = false
-            self.tableView.hidden = false
-            self.lbSpotzName.text = spotz.name
-            
-            self.spotzData = spotz.data
-            self.tableView.reloadData()
-        }
-        else
-        {
-            // hide the spotz name and any attributes
-            self.lbSpotzName.hidden = true
-            self.tableView.hidden = true
-            self.spotzData = [:]
-        }
-    }
-    
-    func showBeaconDetails(beacon:SpotzBeacon!) {
-
+        // add or update the known spotz
+        self.foundSpotz?.setObject(spotz, forKey: spotz.id)
+        
+        // add to our currently inside regions
         if (beacon != nil)
         {
-            // show the major, minor, serial and uuid of the beacon
-            self.lbDetails.hidden = false
-            self.lbDetails.text = String(format:"major:%i  minor:%i  serial(%@)\n%@", beacon.major, beacon.minor, beacon.serial, beacon.uuid)
-            
-            self.currentRegionId = beacon.serial
+            self.insideRegions?.insertObject(beacon, atIndex: 0)
         }
-        else
-        {
-            // hide the major, minor, serial and uuid of the beacon
-            self.lbDetails.hidden = true
-            
-            self.currentRegionId = nil
-        }
-    }
-    
-    func showGeofenceDetails(geofence:SpotzGeofence!) {
-        
         if (geofence != nil)
         {
-            // show the latitude and longitude of the geofence
-            self.lbDetails.hidden = false
-            self.lbDetails.text = String(format:"latitude: %f longitude: %f\nradius: %f", geofence.latitude, geofence.longitude, geofence.radius)
-            
-            self.currentRegionId = geofence.spotzId
+            self.insideRegions?.insertObject(geofence, atIndex: 0)
+        }
+        
+        self.updateView()
+    }
+    
+    func removeRegions(beacon:SpotzBeacon?, geofence:SpotzGeofence?) {
+        
+        var newArray:NSMutableArray = NSMutableArray()
+        
+        // create a new array with all the same regions excluding the beacons and geofences passed in
+        for var i = 0; i < self.insideRegions?.count; i++
+        {
+            if let b = self.insideRegions?[i] as? SpotzBeacon
+            {
+                // we can use serial here because every beacon has a different serial
+                if (beacon?.serial != nil && beacon?.serial != b.serial)
+                {
+                    newArray.addObject(b)
+                }
+            }
+            else if let g = self.insideRegions?[i] as? SpotzGeofence
+            {
+                // we can use spotzId here because each spot can ONLY have one geofence at most
+                if (geofence?.spotzId != nil && geofence?.spotzId != g.spotzId)
+                {
+                    newArray.addObject(g)
+                }
+            }
+            else
+            {
+                // something odd has been passed in or nothing. don't update
+                return
+            }
+        }
+        
+        self.insideRegions = newArray
+        self.updateView()
+    }
+    
+    func updateView()
+    {
+        // if were are currently inside a region. otherwise clear the screen.
+        if (self.insideRegions?.count > 0)
+        {
+            // check whether the last inside region object was a beacon or a geofence.
+            // the list is sorted by order seen, so the first object will be last seen.
+            if let beacon = self.insideRegions?.firstObject as? SpotzBeacon
+            {
+                var spotz:Spotz = self.foundSpotz?.objectForKey(beacon.spotzId) as Spotz!
+                self.spotzData = spotz.data
+                
+                self.lbSpotzName.text = spotz.name
+                self.lbStatus.text = "Spotz rocks!"
+                self.lbDetails.text = "major:\(beacon.major) minor:\(beacon.minor) serial(\(beacon.serial))\n\(beacon.uuid)"
+                self.tableView.reloadData()
+            }
+            else if let geofence = self.insideRegions?.firstObject as? SpotzGeofence
+            {
+                var spotz:Spotz = self.foundSpotz?.objectForKey(geofence.spotzId) as Spotz!
+                self.spotzData = spotz.data
+                
+                self.lbSpotzName.text = spotz.name
+                self.lbStatus.text = "Spotz rocks!"
+                self.lbDetails.text = NSString(format: "%f, %f\nradius: %i", geofence.latitude, geofence.longitude, Int(geofence.radius))
+                self.tableView.reloadData()
+            }
         }
         else
         {
-            // hide the latitude and longitude of the geofence
-            self.lbDetails.hidden = true
-            
-            self.currentRegionId = nil
+            // clear the screen
+            self.lbSpotzName.text = ""
+            self.lbStatus.text = ""
+            self.lbDetails.text = ""
+            self.spotzData = nil
+            self.tableView.reloadData()
         }
     }
-    
     
     // Button actions
     //////
     @IBAction func refreshSpotz() {
+        
         SpotzSDK.forceCheckSpotz()
     }
     
