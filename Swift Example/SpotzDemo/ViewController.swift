@@ -43,7 +43,7 @@ class ViewController: UIViewController, UIWebViewDelegate {
                         
                         var str:NSString = NSString(format: "monitorData(%@,%@,%@)", spotzNameJSON, spotzBeaconJSON, spotzDataJSON)
 
-                        self.webview.stringByEvaluatingJavaScriptFromString(str)
+                        self.webview.stringByEvaluatingJavaScriptFromString(str as String)
                     }
                     else if let geofence: SpotzGeofence = payload["geofence"] as? SpotzGeofence
                     {
@@ -54,7 +54,7 @@ class ViewController: UIViewController, UIWebViewDelegate {
                         
                         var str:NSString = NSString(format: "monitorData(%@,%@,%@)", spotzNameJSON, spotzGeofenceJSON, spotzDataJSON)
                         
-                        self.webview.stringByEvaluatingJavaScriptFromString(str)
+                        self.webview.stringByEvaluatingJavaScriptFromString(str as String)
                     }
                 }
             }
@@ -86,7 +86,7 @@ class ViewController: UIViewController, UIWebViewDelegate {
                         
                         var str:NSString = NSString(format: "hideData(%@,%@,%@)", spotzNameJSON, spotzBeaconJSON, spotzDataJSON)
                         
-                        self.webview.stringByEvaluatingJavaScriptFromString(str)
+                        self.webview.stringByEvaluatingJavaScriptFromString(str as String)
                     }
                     else if let geofence: SpotzGeofence = payload["geofence"] as? SpotzGeofence
                     {
@@ -97,7 +97,7 @@ class ViewController: UIViewController, UIWebViewDelegate {
                         
                         var str:NSString = NSString(format: "hideData(%@,%@,%@)", spotzNameJSON, spotzGeofenceJSON, spotzDataJSON)
                         
-                        self.webview.stringByEvaluatingJavaScriptFromString(str)
+                        self.webview.stringByEvaluatingJavaScriptFromString(str as String)
                     }
                 }
             }
@@ -128,7 +128,7 @@ class ViewController: UIViewController, UIWebViewDelegate {
                         
                         var str:NSString = NSString(format: "rangeData(%@,%@,%@)", spotzNameJSON, beaconAccJSON, spotzDataJSON)
                         
-                        self.webview.stringByEvaluatingJavaScriptFromString(str)
+                        self.webview.stringByEvaluatingJavaScriptFromString(str as String)
                     }
                 }
             }
@@ -144,7 +144,7 @@ class ViewController: UIViewController, UIWebViewDelegate {
                 
                 var str:NSString = NSString(format: "extensionData(%@)", extensionJSON)
                         
-                self.webview.stringByEvaluatingJavaScriptFromString(str)
+                self.webview.stringByEvaluatingJavaScriptFromString(str as String)
             }
         }
     }
@@ -152,7 +152,7 @@ class ViewController: UIViewController, UIWebViewDelegate {
     // Actions available to the website
     func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
         
-        if (request.URL.scheme == "recheck")
+        if (request.URL!.scheme == "recheck")
         {
             SpotzSDK.forceCheckSpotz()
             return false
