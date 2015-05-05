@@ -12,7 +12,7 @@ To create the bridge file:
     This will usually be "myProjectName/myProjectName-Bridging-Header.h".
 4. Return to the header file and finally import your objective-c headers (in objective-c),
     e.g. #import <SpotzSDK/SpotzSDK.h>.
-5. These will now be accessable from your swift files.
+5. These will now be accessible from your swift files.
 
 
 Apple doc at https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/BuildingCocoaApps/MixandMatch.htmls

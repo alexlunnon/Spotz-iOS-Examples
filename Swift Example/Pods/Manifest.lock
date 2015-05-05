@@ -1,8 +1,21 @@
 PODS:
+  - AFNetworking/NSURLConnection (2.4.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/NSURLSession (2.4.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (2.4.1)
+  - AFNetworking/Security (2.4.1)
+  - AFNetworking/Serialization (2.4.1)
   - Realm (0.87.4):
     - Realm/Headers (= 0.87.4)
   - Realm/Headers (0.87.4)
-  - SpotzSDK (2.0.0.0):
+  - SpotzSDK (2.0.0.1):
+    - AFNetworking/NSURLConnection (>= 2.3.0)
+    - AFNetworking/NSURLSession (>= 2.3.0)
     - Realm (= 0.87.4)
 
 DEPENDENCIES:
@@ -14,11 +27,12 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   SpotzSDK:
-    :commit: 5d00467a02227ab15f821f33441d2f47a5abfd8b
+    :commit: 47b7f8912812f76782975999ee188cd2aa61480d
     :git: https://github.com/localz/Spotz-iOS-SDK.git
 
 SPEC CHECKSUMS:
+  AFNetworking: 0aabc6fae66d6e5d039eeb21c315843c7aae51ab
   Realm: 17d0d9c94b38d15223fa3e806ead0e0562765e46
-  SpotzSDK: 91fa598d94e44e910fe672ee9c675a44e22604c5
+  SpotzSDK: a1d23de54b3ed251f9b6364ab3bfcf58d2d630b6
 
-COCOAPODS: 0.35.0
+COCOAPODS: 0.36.4

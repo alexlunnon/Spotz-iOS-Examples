@@ -192,6 +192,7 @@
 				TargetAttributes = {
 					65A36A1D19C4710800DD2D36 = {
 						CreatedOnToolsVersion = 6.0;
+						DevelopmentTeam = SQ4GG4SYBV;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 0;
@@ -409,6 +410,7 @@
 			baseConfigurationReference = 0A424E1AD533595058F0F4BE /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = SpotzDemo/Info.plist;
@@ -425,6 +427,7 @@
 			baseConfigurationReference = E78BA15DF7D842EE8C849508 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = SpotzDemo/Info.plist;

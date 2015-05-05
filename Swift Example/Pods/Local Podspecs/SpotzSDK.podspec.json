@@ -1,0 +1,31 @@
+{
+  "name": "SpotzSDK",
+  "platforms": {
+    "ios": "6.0"
+  },
+  "license": "Commercial License",
+  "version": "2.0.0.1",
+  "summary": "SpotzSDK",
+  "homepage": "http://www.localz.co",
+  "authors": {
+    "Melvin Artemas": "ma@localz.co"
+  },
+  "requires_arc": true,
+  "xcconfig": {
+    "FRAMEWORK_SEARCH_PATHS": "$(inherited)"
+  },
+  "preserve_paths": "SpotzSDK.framework",
+  "vendored_frameworks": "SpotzSDK.framework",
+  "frameworks": "CoreLocation",
+  "dependencies": {
+    "Realm": [
+      "0.87.4"
+    ],
+    "AFNetworking/NSURLConnection": [
+      ">= 2.3.0"
+    ],
+    "AFNetworking/NSURLSession": [
+      ">= 2.3.0"
+    ]
+  }
+}

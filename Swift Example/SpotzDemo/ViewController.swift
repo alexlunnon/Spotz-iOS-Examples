@@ -100,11 +100,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             {
                 // Take out the Spotz object and the distance
                 // Also available is the rssi and the CLBeacon
-                let spotz = data["spotz"] as Spotz!
-                let acc = data["accuracy"] as NSNumber!
+                let spotz = data["spotz"] as! Spotz
+                let acc = data["accuracy"] as! NSNumber
                 
                 // Show the accuracy of the spotz
-                self.lbDetails.text = NSString(format: "Accuracy: %fm", acc.floatValue)
+                self.lbDetails.text = "Accuracy: \(Float(acc.floatValue))m"
                 self.lbSpotzName.text = spotz.name
                 if (self.spotzData != spotz.data)
                 {
@@ -137,7 +137,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
         }
     }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
     
+    // Update view
+    //////
     func addRegion(spotz:Spotz!, beacon:SpotzBeacon!, geofence:SpotzGeofence!) {
         
         // add or update the known spotz
@@ -190,8 +197,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.updateView()
     }
     
-    func updateView()
-    {
+    func updateView() {
         // if we're are currently inside a region. otherwise clear the screen
         if (self.insideRegions?.count > 0)
         {
@@ -199,7 +205,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             // the list is sorted by order seen, so the first object will be the last seen
             if let beacon = self.insideRegions?.firstObject as? SpotzBeacon
             {
-                var spotz:Spotz = self.foundSpotz?.objectForKey(beacon.spotzId) as Spotz!
+                var spotz:Spotz = self.foundSpotz?.objectForKey(beacon.spotzId) as! Spotz
                 self.spotzData = spotz.data
                 
                 self.lbSpotzName.text = spotz.name
@@ -208,12 +214,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
             else if let geofence = self.insideRegions?.firstObject as? SpotzGeofence
             {
-                var spotz:Spotz = self.foundSpotz?.objectForKey(geofence.spotzId) as Spotz!
+                var spotz:Spotz = self.foundSpotz?.objectForKey(geofence.spotzId) as! Spotz
                 self.spotzData = spotz.data
                 
                 self.lbSpotzName.text = spotz.name
                 self.lbStatus.text = "Spotz rocks!"
-                self.lbDetails.text = NSString(format: "%f, %f\nradius: %i", geofence.latitude, geofence.longitude, Int(geofence.radius))
+                self.lbDetails.text = "\(Float(geofence.latitude)), \(Float(geofence.longitude))\nradius: \(Int(geofence.radius))"
             }
         }
         else
@@ -255,17 +261,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         // fill each cell with a attribute
-        var cell = tableView.dequeueReusableCellWithIdentifier("dataCell") as UITableViewCell
-        cell.textLabel?.text = self.spotzData?.allKeys[indexPath.row] as NSString
-        cell.detailTextLabel?.text = self.spotzData?.allValues[indexPath.row] as NSString
+        var cell = tableView.dequeueReusableCellWithIdentifier("dataCell") as! UITableViewCell
+        cell.textLabel?.text = self.spotzData?.allKeys[indexPath.row] as? String
+        cell.detailTextLabel?.text = self.spotzData?.allValues[indexPath.row] as? String
         
         return cell
-    }
-    
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 }
 

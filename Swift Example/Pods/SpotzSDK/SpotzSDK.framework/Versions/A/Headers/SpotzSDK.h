@@ -144,11 +144,6 @@ extern NSString * const SpotzExtensionNotification;
 + (void) startServices;
 
 /**
- * Start connection check. The returned value is available via isReachable. Please note that this method takes a few seconds before it returns a valid value. If status changed to non-reachable it will throw SpotzServerNotReachableNotification
- */
-+ (void) startReachableCheck;
-
-/**
  *  Check if Spotz API is reachable. Please ensure startReachableCheck is run before checking this value.
  */
 + (BOOL) isReachable;

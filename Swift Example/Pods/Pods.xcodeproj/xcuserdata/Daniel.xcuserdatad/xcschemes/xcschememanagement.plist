@@ -4,12 +4,12 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Pods-Realm.xcscheme</key>
+		<key>Pods-AFNetworking.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-SpotzSDK.xcscheme</key>
+		<key>Pods-Realm.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -22,17 +22,17 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>51B96770EFACF53C117CBDE4</key>
+		<key>0342C11DE63ECDCF222E1B32</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>914045F7FEDC8555AD006EA4</key>
+		<key>1CFE52550A7FAEE6E27955B6</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>E4ADFE133CDEF0C179DE21DD</key>
+		<key>E21CBB130E5202E7BAD8EC5D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
